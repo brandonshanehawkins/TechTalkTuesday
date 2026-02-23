@@ -162,3 +162,62 @@ class ImageInputNode {
 ImageInputNode.title = "Image Input";
 ImageInputNode.desc = "Load a local image file";
 LiteGraph.registerNodeType("tttree/inputs/image", ImageInputNode);
+
+// 5. Note Node (Large scratchpad)
+class NoteNode {
+    constructor() {
+        this.properties = { text: "Type your notes here..." };
+        this.widget = this.addWidget("text", "", this.properties.text, (v) => {
+            this.properties.text = v;
+        }, { multiline: true });
+
+        this.color = "#333333";
+        this.bgcolor = "#222222";
+        this.serialize_widgets = true;
+        this.size = [250, 150];
+    }
+}
+NoteNode.title = "Note";
+NoteNode.desc = "A simple text scratchpad";
+LiteGraph.registerNodeType("tttree/inputs/note", NoteNode);
+
+// 6. Theme Color Node
+class ThemeColorNode {
+    constructor() {
+        this.addOutput("Primary", "string");
+        this.addOutput("Secondary", "string");
+        this.addOutput("Accent", "string");
+        this.addOutput("Dark BG", "string");
+        this.addOutput("Light Text", "string");
+
+        this.properties = {
+            primary: "#008080",
+            secondary: "#FFA500",
+            accent: "#BD5E3E",
+            dark: "#333333",
+            light: "#F5F5F5"
+        };
+
+        this.addWidget("text", "Primary", this.properties.primary, (v) => { this.properties.primary = v; });
+        this.addWidget("text", "Secondary", this.properties.secondary, (v) => { this.properties.secondary = v; });
+        this.addWidget("text", "Accent", this.properties.accent, (v) => { this.properties.accent = v; });
+        this.addWidget("text", "Dark BG", this.properties.dark, (v) => { this.properties.dark = v; });
+        this.addWidget("text", "Light Text", this.properties.light, (v) => { this.properties.light = v; });
+
+        this.color = "#008080";
+        this.bgcolor = "#006b6b";
+        this.serialize_widgets = true;
+        this.size = [200, 180];
+    }
+
+    onExecute() {
+        this.setOutputData(0, this.properties.primary);
+        this.setOutputData(1, this.properties.secondary);
+        this.setOutputData(2, this.properties.accent);
+        this.setOutputData(3, this.properties.dark);
+        this.setOutputData(4, this.properties.light);
+    }
+}
+ThemeColorNode.title = "Theme Colors";
+ThemeColorNode.desc = "Outputs brand hex colors";
+LiteGraph.registerNodeType("tttree/inputs/theme_colors", ThemeColorNode);

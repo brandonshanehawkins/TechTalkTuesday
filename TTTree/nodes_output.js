@@ -129,8 +129,13 @@ class HTMLPresentationNode {
             let content = null;
 
             if (p && typeof p === 'object' && p.__is_scene) {
-                // It's a group of elements from CombineElementsNode!
+                // It's a group of elements absolute positioned
                 return { type: 'scene', elements: p.elements.map(processPayload) };
+            }
+
+            if (p && typeof p === 'object' && p.__is_flex_container) {
+                // It's a Flexbox HTML Container
+                return { type: 'container', style: p.style, elements: p.elements.map(processPayload) };
             }
 
             // Is it our internal styled object from the Style Transform node?

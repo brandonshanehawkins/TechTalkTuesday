@@ -90,7 +90,7 @@
 
                 // A recursive function to build DOM elements representing a scene tree
                 const renderElement = (itemData) => {
-                    // It's a compiled scene array container
+                    // It's a compiled scene array container (Absolute stack)
                     if (itemData.type === 'scene') {
                         const container = document.createElement('div');
                         container.style.width = '100%';
@@ -99,6 +99,27 @@
                         itemData.elements.forEach(item => {
                             const el = renderElement(item);
                             if (el) container.appendChild(el);
+                        });
+                        return container;
+                    }
+
+                    // It's a layout-driven HTML Flex Container
+                    if (itemData.type === 'container') {
+                        const container = document.createElement('div');
+                        // Apply flex styles
+                        Object.assign(container.style, itemData.style);
+                        // container styles shouldn't necessarily use absolute to allow proper stacking
+                        container.style.position = 'relative';
+
+                        itemData.elements.forEach(item => {
+                            const el = renderElement(item);
+                            if (el) {
+                                // Important: Elements inside a flexbox shouldn't be fully absolute unless we want them out of flow.
+                                // We remove the 'dynamic-element' class which forces position absolute, 
+                                // or we just adjust styles manually here so flexbox takes over.
+                                el.style.position = 'relative';
+                                container.appendChild(el);
+                            }
                         });
                         return container;
                     }

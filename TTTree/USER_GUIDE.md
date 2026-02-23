@@ -21,6 +21,8 @@ These nodes can be found in the right-click menu under `tttree/`.
 ### Inputs (`tttree/inputs/`)
 Inputs are teal-colored nodes. They are the sources of your data.
 *   **Text Input**: A simple box to type strings of text.
+*   **Note**: A large, multi-line text box you can use anywhere on the canvas as a sticky-note scratchpad for your own personal documentation.
+*   **Theme Colors**: A master node containing all 5 Tech Talk Tuesday brand hex colors. It outputs the strings individually so you can wire them into text styling or other nodes.
 *   **Boolean (Checkbox)**: A simple true/false toggle.
 *   **Number Input**: Defines a numerical value. Expand the widget to see the slider.
 *   **Image Input**: Click the button to launch a file browser. Select a picture from your hard drive, and you'll see a small preview inside the node. It outputs an image data package that can be saved or broadcast.
@@ -29,7 +31,9 @@ Inputs are teal-colored nodes. They are the sources of your data.
 Operators are orange-colored. They take data in, change it, and push it out.
 *   **Math Operation**: Takes two numbers (`A` and `B`), and performs Addition, Subtraction, Multiplication, or Division. You can also toggle rounding.
 *   **Combine Text**: Takes `str1` and `str2`, and merges them with a configurable separator (default is a space).
-*   **Combine Elements (Scene Builder)**: Takes multiple fully-formed elements (like an Image and Text) and groups them together into a "Scene". You can click "Add Input" to layer as many elements as you want! Plug the resulting Scene directly into the HTML Output node to display them all simultaneously.
+*   **Combine Elements (Scene Builder)**: Takes multiple fully-formed elements (like an Image and Text) and groups them together into a "Scene" using absolute positioning.
+*   **HTML Container (Flex)**: Takes multiple elements and wraps them in a WebFlow CSS Flexbox container. You can control justification (Left/Center/Right), layout direction (Row/Col), Padding, and Gap. Think of this as the intelligent version of the Scene Builder!
+*   **Render to Image**: Takes a 'Scene', 'Container', or 'Styled Object' and explicitly rasterizes the HTML DOM into an Image pixel payload so you can save it out. Wait for the preview image to populate on the node!
 *   **Style Transform (PSR)**: *The Composer Concept!* 
     *   Takes any item (an image, text, etc.), and values for Position X, Position Y, Scale, and Opacity.
     *   It wraps the inputs into a special "Styled Object" that the HTML Output node understands.

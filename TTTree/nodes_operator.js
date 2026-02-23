@@ -1,5 +1,6 @@
 import { LiteGraph } from 'litegraph.js'
 import { marked } from 'marked'
+import html2canvas from 'html2canvas'
 
 // --- Operators ---
 
@@ -217,5 +218,250 @@ class MarkdownNode {
 MarkdownNode.title = "Markdown";
 MarkdownNode.desc = "Converts markdown text to HTML";
 LiteGraph.registerNodeType("tttree/operators/markdown", MarkdownNode);
+
+// 6. HTML Container Node (Advanced Layout)
+class HTMLContainerNode {
+    constructor() {
+        this.addInput("element 1", 0);
+        this.addInput("element 2", 0);
+        this.addOutput("container", 0);
+
+        this.properties = {
+            direction: "column",
+            align: "center",
+            justify: "center",
+            padding: "20px",
+            gap: "10px"
+        };
+
+        this.addWidget("combo", "Direction", "column", (v) => { this.properties.direction = v; }, { values: ["column", "row"] });
+        this.addWidget("combo", "Align (Cross)", "center", (v) => { this.properties.align = v; }, { values: ["flex-start", "center", "flex-end", "stretch"] });
+        this.addWidget("combo", "Justify (Main)", "center", (v) => { this.properties.justify = v; }, { values: ["flex-start", "center", "flex-end", "space-between", "space-around"] });
+        this.addWidget("text", "Padding", "20px", (v) => { this.properties.padding = v; });
+        this.addWidget("text", "Gap", "10px", (v) => { this.properties.gap = v; });
+
+        // Dynamically add or remove inputs
+        this.addWidget("button", "Add Input", null, () => {
+            this.addInput("element " + (this.inputs.length + 1), 0);
+        });
+
+        this.addWidget("button", "Remove Input", null, () => {
+            if (this.inputs.length > 2) {
+                this.removeInput(this.inputs.length - 1);
+            }
+        });
+
+        this.color = "#FFA500";
+        this.bgcolor = "#cc8400";
+        this.title_text_color = "#1a1a1a";
+        this.serialize_widgets = true;
+        this.size = [250, 240];
+    }
+
+    onExecute() {
+        let items = [];
+        for (let i = 0; i < this.inputs.length; i++) {
+            let data = this.getInputData(i);
+            if (data != null) {
+                items.push(data);
+            }
+        }
+
+        // Output an object marked as a flexbox container holding children
+        this.setOutputData(0, {
+            __is_flex_container: true,
+            elements: items,
+            style: {
+                display: "flex",
+                flexDirection: this.properties.direction,
+                alignItems: this.properties.align,
+                justifyContent: this.properties.justify,
+                padding: this.properties.padding,
+                gap: this.properties.gap,
+                width: "100%",
+                height: "100%",
+                boxSizing: "border-box"
+            }
+        });
+    }
+}
+HTMLContainerNode.title = "HTML Container (Flex)";
+HTMLContainerNode.desc = "Wraps elements in a flexbox layout container";
+LiteGraph.registerNodeType("tttree/operators/html_container", HTMLContainerNode);
+
+// 7. Render to Image Node (Scene to Pixels via hidden DOM manipulation)
+class RenderToImageNode {
+    constructor() {
+        this.addInput("scene / element", 0);
+        this.addOutput("image", "image");
+
+        this.addWidget("button", "Render", null, () => {
+            this.renderToPixels();
+        });
+
+        this.img = null; // The cached HTMLImageElement
+        this.color = "#FFA500";
+        this.bgcolor = "#cc8400";
+        this.title_text_color = "#1a1a1a";
+        this.size = [200, 150];
+    }
+
+    // Since this is a heavy DOM operation, we usually force it via button click 
+    // rather than running 60fps in onExecute
+    onExecute() {
+        // Output the cached image
+        if (this.img) {
+            this.setOutputData(0, this.img);
+        } else {
+            this.setOutputData(0, null);
+        }
+    }
+
+    async renderToPixels() {
+        const payload = this.getInputData(0);
+        if (!payload) {
+            alert("Nothing connected to Render node.");
+            return;
+        }
+
+        // 1. Create a hidden staging area in the real DOM
+        const stage = document.createElement("div");
+        stage.style.position = "absolute";
+        stage.style.left = "-9999px";
+        stage.style.top = "-9999px";
+        // We give it a fixed size mimicking a presentation screen
+        stage.style.width = "1920px";
+        stage.style.height = "1080px";
+        stage.style.backgroundColor = "transparent";
+        stage.style.overflow = "hidden";
+
+        // Use the same styles as the presentation view
+        stage.style.display = "flex";
+        stage.style.justifyContent = "center";
+        stage.style.alignItems = "center";
+        stage.style.fontFamily = "'Poppins', sans-serif";
+        stage.style.color = "#F5F5F5";
+
+        // 2. We need to borrow the same recursive rendering logic from the Presentation window
+        // (A robust app would abstract this into a shared utility file, but we inline for now)
+        const renderElement = (itemData) => {
+            if (!itemData) return null;
+
+            if (itemData.type === 'scene') {
+                const container = document.createElement('div');
+                container.style.width = '100%';
+                container.style.height = '100%';
+                container.style.position = 'absolute';
+                itemData.elements.forEach(item => {
+                    const el = renderElement(item);
+                    if (el) container.appendChild(el);
+                });
+                return container;
+            }
+
+            if (itemData.type === 'container') {
+                const container = document.createElement('div');
+                Object.assign(container.style, itemData.style);
+                container.style.position = 'relative';
+                itemData.elements.forEach(item => {
+                    const el = renderElement(item);
+                    if (el) {
+                        el.style.position = 'relative';
+                        container.appendChild(el);
+                    }
+                });
+                return container;
+            }
+
+            let el;
+            if (itemData.content.type === 'image') {
+                el = document.createElement('img');
+                el.src = itemData.content.src;
+                // Important for cross-origin canvases
+                el.crossOrigin = "anonymous";
+            } else if (itemData.content.type === 'html') {
+                el = document.createElement('div');
+                el.innerHTML = itemData.content.val;
+            } else if (itemData.content.type === 'text' || itemData.content.type === 'json') {
+                el = document.createElement('div');
+                el.innerText = itemData.content.val;
+                el.style.fontSize = "4rem";
+                el.style.fontWeight = "700";
+            }
+
+            if (el) {
+                if (itemData.style) {
+                    if (itemData.style.transform) el.style.transform = itemData.style.transform;
+                    if (itemData.style.opacity !== undefined) el.style.opacity = itemData.style.opacity;
+                }
+            }
+            return el;
+        };
+
+        // 3. We must pre-process the raw LiteGraph payload into our serialized format 
+        // Identical to what HTMLPresentationNode.onExecute does
+        const processPayload = (p) => {
+            let style = {}; let content = null;
+            if (p && p.__is_scene) return { type: 'scene', elements: p.elements.map(processPayload) };
+            if (p && p.__is_flex_container) return { type: 'container', style: p.style, elements: p.elements.map(processPayload) };
+            if (p && p.content !== undefined && p.style !== undefined) { style = p.style; p = p.content; }
+            if (p && p.__is_html) return { content: { type: 'html', val: p.val }, style: {} };
+            if (p instanceof HTMLImageElement) content = { type: 'image', src: p.src };
+            else if (typeof p === 'string' || typeof p === 'number' || typeof p === 'boolean') content = { type: 'text', val: String(p) };
+            else content = { type: 'json', val: JSON.stringify(p) };
+            return { content, style };
+        };
+
+        const processed = processPayload(payload);
+        const domTree = renderElement(processed);
+
+        if (domTree) {
+            stage.appendChild(domTree);
+            document.body.appendChild(stage);
+
+            try {
+                // 4. Use html2canvas to rasterize the DOM block into a canvas element
+                const canvas = await html2canvas(stage, {
+                    backgroundColor: null, // preserve transparency
+                    logging: false
+                });
+
+                // 5. Convert WebGL/Canvas to standard Image
+                const imgUrl = canvas.toDataURL("image/png");
+                this.img = new Image();
+                this.img.src = imgUrl;
+
+                // Redraw our node
+                this.img.onload = () => {
+                    this.setDirtyCanvas(true, true);
+                };
+            } catch (err) {
+                console.error("Failed to render HTML to image:", err);
+            } finally {
+                // Clean up the hidden DOM
+                document.body.removeChild(stage);
+            }
+        }
+    }
+
+    // Draw the rasterized preview just like ImageInputNode
+    onDrawBackground(ctx) {
+        if (this.flags.collapsed) return;
+        if (this.img && this.img.width > 0) {
+            const aspect = this.img.width / this.img.height;
+            const w = this.size[0] - 20;
+            const h = w / aspect;
+            if (this.size[1] < h + 50) this.size[1] = h + 50;
+            ctx.drawImage(this.img, 10, 40, w, h);
+        } else {
+            ctx.fillStyle = "#555";
+            ctx.font = "12px DM Sans, sans-serif";
+            ctx.fillText("Click Render to Generate", 10, 60);
+        }
+    }
+}
+RenderToImageNode.title = "Render to Image";
+RenderToImageNode.desc = "Rasterizes HTML scenes into a pixel Image";
+LiteGraph.registerNodeType("tttree/operators/render_to_image", RenderToImageNode);
 
 
