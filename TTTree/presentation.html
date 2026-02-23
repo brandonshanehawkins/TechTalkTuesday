@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTTree Presentation</title>
+    <!-- Same Google Fonts mapping -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #333333;
+            --text-light: #F5F5F5;
+            --primary: #008080;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+            /* Presentation defaults to Poppins for impact */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            /* We are a pure canvas view */
+        }
+
+        #presentation-stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #placeholder-text {
+            color: rgba(245, 245, 245, 0.2);
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        /* Elements injected broadly center themselves unless overriden by PSR */
+        .dynamic-element {
+            position: absolute;
+            transition: all 0.2s ease-out;
+            /* Smooth transitions between node state changes */
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .dynamic-element.text-content {
+            font-size: 4rem;
+            text-align: center;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="presentation-stage">
+        <div id="placeholder-text">Waiting for TTTree graph signals...</div>
+    </div>
+
+    <script>
+        const stage = document.getElementById('presentation-stage');
+        const channel = new BroadcastChannel("tttree_presentation_channel");
+
+        channel.onmessage = (event) => {
+            const data = event.data;
+            if (!data) return;
+
+            if (data.type === 'clear') {
+                stage.innerHTML = '<div id="placeholder-text">Waiting for TTTree graph signals...</div>';
+                return;
+            }
+
+            if (data.type === 'render' && data.data) {
+                // Clear the stage entirely
+                stage.innerHTML = '';
+
+                // A recursive function to build DOM elements representing a scene tree
+                const renderElement = (itemData) => {
+                    // It's a compiled scene array container
+                    if (itemData.type === 'scene') {
+                        const container = document.createElement('div');
+                        container.style.width = '100%';
+                        container.style.height = '100%';
+                        container.style.position = 'absolute';
+                        itemData.elements.forEach(item => {
+                            const el = renderElement(item);
+                            if (el) container.appendChild(el);
+                        });
+                        return container;
+                    }
+
+                    // Otherwise it's a standard element (with or without style wrap)
+                    let el;
+                    if (itemData.content.type === 'image') {
+                        el = document.createElement('img');
+                        el.src = itemData.content.src;
+                    } else if (itemData.content.type === 'html') {
+                        el = document.createElement('div');
+                        el.innerHTML = itemData.content.val;
+                    } else if (itemData.content.type === 'text' || itemData.content.type === 'json') {
+                        el = document.createElement('div');
+                        el.innerText = itemData.content.val;
+                        el.classList.add('text-content');
+                    }
+
+                    if (el) {
+                        el.classList.add('dynamic-element');
+
+                        // Apply incoming inline PSR styles if they exist from the Style Transform Node
+                        if (itemData.style) {
+                            if (itemData.style.transform) el.style.transform = itemData.style.transform;
+                            if (itemData.style.opacity !== undefined) el.style.opacity = itemData.style.opacity;
+                        }
+                    }
+                    return el;
+                };
+
+                const rendered = renderElement(data.data);
+                if (rendered) {
+                    stage.appendChild(rendered);
+                }
+            }
+        };
+
+        // Notify editor we are alive (if desired later, we could ping back)
+        console.log("TTTree Presentation Receiver Loaded.");
+    </script>
+</body>
+
+</html>

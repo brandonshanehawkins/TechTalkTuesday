@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TTTree | Node Editor</title>
+  <!-- Google Fonts: Poppins (primary) and DM Sans (fallback/secondary) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <!-- LiteGraph.js default CSS styling for node rendering -->
+  <link rel="stylesheet" type="text/css" href="/node_modules/litegraph.js/css/litegraph.css">
+
+  <!-- Our custom brand styles mapping onto LiteGraph conventions & editor UI -->
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="logo-container">
+      <h1>TTTree</h1>
+      <span class="tagline">Tech Talk Tuesday</span>
+    </div>
+    <div class="header-controls">
+      <input type="text" id="graph-name" class="graph-name-input" value="tttree-workflow" title="Name your graph" />
+      <button id="btn-save" class="btn primary" title="Save graph to JSON file">Save Graph</button>
+      <button id="btn-load" class="btn secondary" title="Load graph from JSON file">Load Graph</button>
+      <button id="btn-clear" class="btn danger" title="Clear canvas">Clear Canvas</button>
+      <button id="btn-arrange" class="btn outline" title="Auto-arrange nodes">Auto-Arrange</button>
+      <button id="btn-present" class="btn accent" title="Open Presentation Window">Start Presentation</button>
+    </div>
+  </header>
+
+  <!-- Main Workspace Layout -->
+  <div class="workspace">
+
+    <!-- The Node Canvas Context -->
+    <main class="canvas-container">
+      <!-- The canvas element LiteGraph binds to -->
+      <canvas id="tttree-canvas" width="1024" height="768"></canvas>
+    </main>
+  </div>
+
+  <!-- Hidden file input for loading JSON workflows -->
+  <input type="file" id="file-input-load" accept=".json" style="display: none;" />
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
