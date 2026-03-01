@@ -53,7 +53,7 @@ class MathOperationNode {
 }
 MathOperationNode.title = "Math Operation";
 MathOperationNode.desc = "Basic A and B math";
-LiteGraph.registerNodeType("tttree/operators/math", MathOperationNode);
+LiteGraph.registerNodeType("gizmo/operators/math", MathOperationNode);
 
 // 2. Combine Text Node
 class CombineTextNode {
@@ -87,7 +87,7 @@ class CombineTextNode {
 }
 CombineTextNode.title = "Combine Text";
 CombineTextNode.desc = "Concatenate two strings";
-LiteGraph.registerNodeType("tttree/operators/combine_text", CombineTextNode);
+LiteGraph.registerNodeType("gizmo/operators/combine_text", CombineTextNode);
 
 // 3. Compositing/Style Transform Node (The Core CSS manipulation)
 // This conceptual node takes a base element and applies PSR to it
@@ -144,7 +144,7 @@ class StyleTransformNode {
 }
 StyleTransformNode.title = "Style Transform (PSR)";
 StyleTransformNode.desc = "Applies Position, Scale, Opacity (CSS)";
-LiteGraph.registerNodeType("tttree/operators/style_transform", StyleTransformNode);
+LiteGraph.registerNodeType("gizmo/operators/style_transform", StyleTransformNode);
 
 // 4. Combine Elements Node (Scene Builder)
 class CombineElementsNode {
@@ -185,7 +185,7 @@ class CombineElementsNode {
 }
 CombineElementsNode.title = "Combine Elements";
 CombineElementsNode.desc = "Stacks multiple elements together";
-LiteGraph.registerNodeType("tttree/operators/combine_elements", CombineElementsNode);
+LiteGraph.registerNodeType("gizmo/operators/combine_elements", CombineElementsNode);
 
 // 5. Markdown Node
 class MarkdownNode {
@@ -217,7 +217,7 @@ class MarkdownNode {
 }
 MarkdownNode.title = "Markdown";
 MarkdownNode.desc = "Converts markdown text to HTML";
-LiteGraph.registerNodeType("tttree/operators/markdown", MarkdownNode);
+LiteGraph.registerNodeType("gizmo/operators/markdown", MarkdownNode);
 
 // 6. HTML Container Node (Advanced Layout)
 class HTMLContainerNode {
@@ -287,7 +287,7 @@ class HTMLContainerNode {
 }
 HTMLContainerNode.title = "HTML Container (Flex)";
 HTMLContainerNode.desc = "Wraps elements in a flexbox layout container";
-LiteGraph.registerNodeType("tttree/operators/html_container", HTMLContainerNode);
+LiteGraph.registerNodeType("gizmo/operators/html_container", HTMLContainerNode);
 
 // 7. Render to Image Node (Scene to Pixels via hidden DOM manipulation)
 class RenderToImageNode {
@@ -377,8 +377,19 @@ class RenderToImageNode {
             if (itemData.content.type === 'image') {
                 el = document.createElement('img');
                 el.src = itemData.content.src;
-                // Important for cross-origin canvases
                 el.crossOrigin = "anonymous";
+            } else if (itemData.content.type === 'video') {
+                el = document.createElement('video');
+                el.src = itemData.content.src;
+                el.autoplay = true;
+                el.loop = true;
+                el.muted = true;
+                el.crossOrigin = "anonymous";
+                // If the user already provided the element, we can use its current state
+                if (itemData.content.element) {
+                    // Sync the time
+                    el.currentTime = itemData.content.element.currentTime;
+                }
             } else if (itemData.content.type === 'html') {
                 el = document.createElement('div');
                 el.innerHTML = itemData.content.val;
@@ -406,6 +417,7 @@ class RenderToImageNode {
             if (p && p.__is_flex_container) return { type: 'container', style: p.style, elements: p.elements.map(processPayload) };
             if (p && p.content !== undefined && p.style !== undefined) { style = p.style; p = p.content; }
             if (p && p.__is_html) return { content: { type: 'html', val: p.val }, style: {} };
+            if (p && p.type === 'video') return { content: { type: 'video', src: p.src, element: p.element }, style: {} };
             if (p instanceof HTMLImageElement) content = { type: 'image', src: p.src };
             else if (typeof p === 'string' || typeof p === 'number' || typeof p === 'boolean') content = { type: 'text', val: String(p) };
             else content = { type: 'json', val: JSON.stringify(p) };
@@ -462,6 +474,6 @@ class RenderToImageNode {
 }
 RenderToImageNode.title = "Render to Image";
 RenderToImageNode.desc = "Rasterizes HTML scenes into a pixel Image";
-LiteGraph.registerNodeType("tttree/operators/render_to_image", RenderToImageNode);
+LiteGraph.registerNodeType("gizmo/operators/render_to_image", RenderToImageNode);
 
 

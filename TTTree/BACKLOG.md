@@ -1,6 +1,6 @@
-# TTTree Backlog & Idea Tracker
+# GizmoGraph Backlog & Idea Tracker
 
-Welcome to the backlog! Whenever you have a "shower thought" or a cool idea while tinkering with TTTree, just drop it in here. 
+Welcome to the backlog! Whenever you have a "shower thought" or a cool idea while tinkering with GizmoGraph, just drop it in here. 
 
 When you're ready to have me (Antigravity) build some of these out, just say: 
 *"Hey, let's tackle the top 3 items in the backlog today!"*
@@ -19,8 +19,8 @@ When you're ready to have me (Antigravity) build some of these out, just say:
 - [x] Create a Markdown Node that accepts markdown text and renders it as HTML for presentation.
 - [x] The nodes based on #FFA500 should have dark text, if possible, for legibility
 - [x] Create a Graph Name field or button; Save Graph should use this as filename for graph state saves.
-- [x] Document under-the-hood LiteGraph details vs Custom TTTree nodes (Answered question about Crop/Python backend).
-- [x] Initial TTTree Vite architecture.
-- [x] Custom LiteGraph `tttree` node categories.
+- [x] Document under-the-hood LiteGraph details vs Custom GizmoGraph nodes (Answered question about Crop/Python backend).
+- [x] Initial GizmoGraph Vite architecture.
+- [x] Custom LiteGraph `gizmo` node categories.
 - [x] Dual-window `BroadcastChannel` presentation mode.
 - [x] Multi-element Scene Builder operator.

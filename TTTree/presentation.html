@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTTree Presentation</title>
+    <title>GizmoGraph Presentation</title>
     <!-- Same Google Fonts mapping -->
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
@@ -68,19 +68,19 @@
 
 <body>
     <div id="presentation-stage">
-        <div id="placeholder-text">Waiting for TTTree graph signals...</div>
+        <div id="placeholder-text">Waiting for GizmoGraph signals...</div>
     </div>
 
     <script>
         const stage = document.getElementById('presentation-stage');
-        const channel = new BroadcastChannel("tttree_presentation_channel");
+        const channel = new BroadcastChannel("gizmograph_presentation_channel");
 
         channel.onmessage = (event) => {
             const data = event.data;
             if (!data) return;
 
             if (data.type === 'clear') {
-                stage.innerHTML = '<div id="placeholder-text">Waiting for TTTree graph signals...</div>';
+                stage.innerHTML = '<div id="placeholder-text">Waiting for GizmoGraph signals...</div>';
                 return;
             }
 
@@ -129,6 +129,12 @@
                     if (itemData.content.type === 'image') {
                         el = document.createElement('img');
                         el.src = itemData.content.src;
+                    } else if (itemData.content.type === 'video') {
+                        el = document.createElement('video');
+                        el.src = itemData.content.src;
+                        el.autoplay = true;
+                        el.loop = true;
+                        el.muted = true;
                     } else if (itemData.content.type === 'html') {
                         el = document.createElement('div');
                         el.innerHTML = itemData.content.val;
@@ -158,7 +164,7 @@
         };
 
         // Notify editor we are alive (if desired later, we could ping back)
-        console.log("TTTree Presentation Receiver Loaded.");
+        console.log("GizmoGraph Presentation Receiver Loaded.");
     </script>
 </body>
 

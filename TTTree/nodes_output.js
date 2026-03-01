@@ -37,7 +37,7 @@ class SaveImageNode {
 }
 SaveImageNode.title = "Save Image";
 SaveImageNode.desc = "Trigger Image download";
-LiteGraph.registerNodeType("tttree/outputs/save_image", SaveImageNode);
+LiteGraph.registerNodeType("gizmo/outputs/save_image", SaveImageNode);
 
 
 // 2. Save Text/Data Node (CSV/TXT)
@@ -95,14 +95,14 @@ class SaveFileNode {
 }
 SaveFileNode.title = "Save File (Data)";
 SaveFileNode.desc = "Download string/data to local file";
-LiteGraph.registerNodeType("tttree/outputs/save_file", SaveFileNode);
+LiteGraph.registerNodeType("gizmo/outputs/save_file", SaveFileNode);
 
 
 // --- The Core Strategy: HTML Presentation Node ---
 // This node collects whatever data, image, or styled object is fed to it,
 // And broadcasts it over the BroadcastChannel API so `presentation.html` can render it live.
 
-const tttBroadcastChannel = new BroadcastChannel("tttree_presentation_channel");
+const tttBroadcastChannel = new BroadcastChannel("gizmograph_presentation_channel");
 
 class HTMLPresentationNode {
     constructor() {
@@ -149,6 +149,10 @@ class HTMLPresentationNode {
                 return { content: { type: 'html', val: p.val }, style: {} };
             }
 
+            if (p && typeof p === 'object' && p.type === 'video') {
+                return { content: { type: 'video', src: p.src }, style: {} };
+            }
+
             // Process the base content type
             if (p instanceof HTMLImageElement) {
                 // It's the Image from ImageInputNode!
@@ -176,4 +180,4 @@ class HTMLPresentationNode {
 
 HTMLPresentationNode.title = "HTML Output (Present)";
 HTMLPresentationNode.desc = "Broadcasts to the Presentation window";
-LiteGraph.registerNodeType("tttree/outputs/html_presentation", HTMLPresentationNode);
+LiteGraph.registerNodeType("gizmo/outputs/html_presentation", HTMLPresentationNode);

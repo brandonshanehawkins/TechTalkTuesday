@@ -15,10 +15,10 @@ Since TTTree runs on the **LiteGraph.js** engine (identical to ComfyUI), navigat
 
 ---
 
-## 🛠️ The TTTree Custom Nodes
-These nodes can be found in the right-click menu under `tttree/`.
+## 🛠️ The GizmoGraph Custom Nodes
+These nodes can be found in the right-click menu under `gizmo/`.
 
-### Inputs (`tttree/inputs/`)
+### Inputs (`gizmo/inputs/`)
 Inputs are teal-colored nodes. They are the sources of your data.
 *   **Text Input**: A simple box to type strings of text.
 *   **Note**: A large, multi-line text box you can use anywhere on the canvas as a sticky-note scratchpad for your own personal documentation.

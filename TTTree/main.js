@@ -15,7 +15,7 @@ LiteGraph.node_text_color = "#F5F5F5";
 
 // Create Graph and Canvas
 const graph = new LGraph();
-const canvasElement = document.getElementById("tttree-canvas");
+const canvasElement = document.getElementById("gizmograph-canvas");
 
 // LGraphCanvas binds the graph to the actual DOM canvas element
 const graphCanvas = new LGraphCanvas(canvasElement, graph, {
@@ -59,7 +59,7 @@ document.getElementById('btn-save').addEventListener('click', () => {
 
     // Grab the custom name from the header input
     let filename = document.getElementById('graph-name').value.trim();
-    if (!filename) filename = "tttree-workflow";
+    if (!filename) filename = "gizmograph-workflow";
     if (!filename.endsWith('.json')) filename += ".json";
 
     a.download = filename;
@@ -88,7 +88,7 @@ document.getElementById('file-input-load').addEventListener('change', (e) => {
             graph.configure(data, false);
         } catch (err) {
             console.error("Failed to parse JSON", err);
-            alert("Invalid TTTree JSON workflow.");
+            alert("Invalid GizmoGraph JSON workflow.");
         }
     };
     reader.readAsText(file);
@@ -109,7 +109,25 @@ document.getElementById('btn-arrange').addEventListener('click', () => {
 
 document.getElementById('btn-present').addEventListener('click', () => {
     // We will build this presentation connection later, for now just open the tab.
-    window.open('/presentation.html', '_blank', 'TTTree Presentation', 'width=1280,height=720');
+    window.open('/presentation.html', '_blank', 'GizmoGraph Presentation', 'width=1280,height=720');
+});
+
+// Toggle Split View Presentation Panel
+document.getElementById('btn-toggle-panel').addEventListener('click', () => {
+    const workspace = document.querySelector('.workspace');
+    const panel = document.getElementById('side-panel');
+
+    // Toggle classes
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        workspace.classList.add('split-view');
+        // Force a graph resize slightly after the CSS transition finishes
+        setTimeout(() => graphCanvas.resize(), 300);
+    } else {
+        panel.classList.add('hidden');
+        workspace.classList.remove('split-view');
+        setTimeout(() => graphCanvas.resize(), 300);
+    }
 });
 
 // Update the canvas size explicitly on load

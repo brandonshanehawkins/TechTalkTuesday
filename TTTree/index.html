@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TTTree | Node Editor</title>
+  <title>GizmoGraph | Node Editor</title>
   <!-- Google Fonts: Poppins (primary) and DM Sans (fallback/secondary) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,17 +24,18 @@
   <!-- Top Navigation Bar -->
   <header class="app-header">
     <div class="logo-container">
-      <img src="/assets/tech-talk-logo-equity-000003.png" alt="TechTalkTuesday Logo"
-        style="height: 30px; margin-right: 10px;">
-      <span class="tagline">TTTree</span>
+      <img src="/assets/tech-talk-logo-equity-000003.png" alt="TechTalkTuesday Logo" <span
+        class="tagline">GizmoGraph</span>
     </div>
     <div class="header-controls">
-      <input type="text" id="graph-name" class="graph-name-input" value="tttree-workflow" title="Name your graph" />
+      <input type="text" id="graph-name" class="graph-name-input" value="gizmograph-workflow" title="Name your graph" />
       <button id="btn-save" class="btn primary" title="Save graph to JSON file">Save Graph</button>
       <button id="btn-load" class="btn secondary" title="Load graph from JSON file">Load Graph</button>
       <button id="btn-clear" class="btn danger" title="Clear canvas">Clear Canvas</button>
       <button id="btn-arrange" class="btn outline" title="Auto-arrange nodes">Auto-Arrange</button>
-      <button id="btn-present" class="btn accent" title="Open Presentation Window">Start Presentation</button>
+      <button id="btn-toggle-panel" class="btn secondary" title="Toggle Side Presentation Panel">Toggle Split
+        View</button>
+      <button id="btn-present" class="btn accent" title="Open Presentation Window">Popup Presentation</button>
     </div>
   </header>
 
@@ -44,8 +45,13 @@
     <!-- The Node Canvas Context -->
     <main class="canvas-container">
       <!-- The canvas element LiteGraph binds to -->
-      <canvas id="tttree-canvas" width="1024" height="768"></canvas>
+      <canvas id="gizmograph-canvas" width="1024" height="768"></canvas>
     </main>
+
+    <!-- Optional Side Panel for docked presentation -->
+    <aside id="side-panel" class="presentation-panel hidden">
+      <iframe id="presentation-frame" src="/presentation.html" title="GizmoGraph Live Preview"></iframe>
+    </aside>
   </div>
 
   <!-- Hidden file input for loading JSON workflows -->
