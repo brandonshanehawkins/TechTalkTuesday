@@ -26,19 +26,22 @@ Inputs are teal-colored nodes. They are the sources of your data.
 *   **Boolean (Checkbox)**: A simple true/false toggle.
 *   **Number Input**: Defines a numerical value. Expand the widget to see the slider.
 *   **Image Input**: Click the button to launch a file browser. Select a picture from your hard drive, and you'll see a small preview inside the node. It outputs an image data package that can be saved or broadcast.
+*   **Video Input**: Load an .mp4 or .webm file. Use the toggle to play/pause the video live on your canvas and presentation screen.
+*   **Load Text/Data**: Load a .txt, .csv, .json, or .md file from your computer and output it as a text string. Perfect for importing prompts or case study copy.
+*   **Solid Layer**: Generates a colored rectangle. You can set the width, height, opacity, and hex color directly on the node or drive them dynamically with other inputs.
 
-### Operators (`tttree/operators/`)
+### Operators (`gizmo/operators/`)
 Operators are orange-colored. They take data in, change it, and push it out.
 *   **Math Operation**: Takes two numbers (`A` and `B`), and performs Addition, Subtraction, Multiplication, or Division. You can also toggle rounding.
 *   **Combine Text**: Takes `str1` and `str2`, and merges them with a configurable separator (default is a space).
 *   **Combine Elements (Scene Builder)**: Takes multiple fully-formed elements (like an Image and Text) and groups them together into a "Scene" using absolute positioning.
-*   **HTML Container (Flex)**: Takes multiple elements and wraps them in a WebFlow CSS Flexbox container. You can control justification (Left/Center/Right), layout direction (Row/Col), Padding, and Gap. Think of this as the intelligent version of the Scene Builder!
+*   **HTML Container (Flex)**: Takes multiple elements and wraps them in a WebFlow CSS Flexbox container. You can control justification (Left/Center/Right), layout direction (Row/Col), Padding, and **Gap (the distance in pixels between elements)**. Think of this as the intelligent version of the Scene Builder!
 *   **Render to Image**: Takes a 'Scene', 'Container', or 'Styled Object' and explicitly rasterizes the HTML DOM into an Image pixel payload so you can save it out. Wait for the preview image to populate on the node!
-*   **Style Transform (PSR)**: *The Composer Concept!* 
-    *   Takes any item (an image, text, etc.), and values for Position X, Position Y, Scale, and Opacity.
+*   **Transformer**: *The Composer Concept!* 
+    *   Takes any item (an image, text, solid layer, etc.), and values for Position X, Position Y, Scale, Opacity, and Color. You can use the widgets directly on the node or drive them with input ports.
     *   It wraps the inputs into a special "Styled Object" that the HTML Output node understands.
 
-### Outputs (`tttree/outputs/`)
+### Outputs (`gizmo/outputs/`)
 Outputs are rust-colored. They represent the final action of the flow.
 *   **Save File (Data)**: Takes text, JSON, or numbers, and triggers a file download to your computer.
 *   **Save Image**: Takes image data and immediately downloads the modified image payload to your computer.

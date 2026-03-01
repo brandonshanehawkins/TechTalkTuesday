@@ -21,8 +21,8 @@ class MathOperationNode {
             this.properties.round = v;
         });
 
-        this.color = "#FFA500"; // Secondary brand color for Operators
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400"; // Secondary brand color for Operators
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
         this.serialize_widgets = true;
     }
@@ -67,8 +67,8 @@ class CombineTextNode {
             this.properties.separator = v;
         });
 
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
         this.serialize_widgets = true;
     }
@@ -98,52 +98,67 @@ class StyleTransformNode {
         this.addInput("y", "number");
         this.addInput("scale", "number");
         this.addInput("opacity", "number");
+        this.addInput("color", "string");
 
         this.addOutput("styled_object", 0); // outputs a config object representing styled state
 
         this.properties = {
-            default_x: 0,
-            default_y: 0,
-            default_scale: 1,
-            default_opacity: 1
+            x: 0,
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            color: "" // Default empty, only tinted if user provides it
         };
 
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.addWidget("number", "X", this.properties.x, (v) => { this.properties.x = v; });
+        this.addWidget("number", "Y", this.properties.y, (v) => { this.properties.y = v; });
+        this.addWidget("number", "Scale", this.properties.scale, (v) => { this.properties.scale = v; }, { step: 0.1 });
+        this.addWidget("number", "Opacity", this.properties.opacity, (v) => { this.properties.opacity = v; }, { min: 0, max: 1, step: 0.1 });
+        this.addWidget("text", "Color", this.properties.color, (v) => { this.properties.color = v; });
+
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
+        this.serialize_widgets = true;
     }
 
     onExecute() {
         const item = this.getInputData(0);
         if (!item) return;
 
-        const x = this.getInputData(1) !== undefined ? this.getInputData(1) : this.properties.default_x;
-        const y = this.getInputData(2) !== undefined ? this.getInputData(2) : this.properties.default_y;
-        const scale = this.getInputData(3) !== undefined ? this.getInputData(3) : this.properties.default_scale;
+        const x = this.getInputData(1) !== undefined ? this.getInputData(1) : this.properties.x;
+        const y = this.getInputData(2) !== undefined ? this.getInputData(2) : this.properties.y;
+        const scale = this.getInputData(3) !== undefined ? this.getInputData(3) : this.properties.scale;
 
-        // Using `!= null` to properly catch 0 but fallback if strictly undefined
         let opacity = this.getInputData(4);
-        if (opacity === undefined || opacity === null) opacity = this.properties.default_opacity;
-
-        // Ensure opacity is bound 0 to 1 if user fed percentage
+        if (opacity === undefined || opacity === null) opacity = this.properties.opacity;
         if (opacity > 1) opacity = opacity / 100;
+
+        let inputColor = this.getInputData(5);
+        let finalColor = inputColor !== undefined ? inputColor : this.properties.color;
 
         // Instead of directly mutating DOM (which breaks purity of the graph), 
         // we wrap the item in our own internal styled datastructure.
         // The HTML presentation node will know how to unpack this.
+        let styleObj = {
+            transform: `translate(${x}px, ${y}px) scale(${scale})`,
+            opacity: opacity
+        };
+
+        if (finalColor && finalColor.trim() !== "") {
+            styleObj.color = finalColor;
+        }
+
         const representation = {
             content: item, // could be text string, image HTML node, etc.
-            style: {
-                transform: `translate(${x}px, ${y}px) scale(${scale})`,
-                opacity: opacity
-            }
+            style: styleObj
         }
 
         this.setOutputData(0, representation);
     }
 }
-StyleTransformNode.title = "Style Transform (PSR)";
-StyleTransformNode.desc = "Applies Position, Scale, Opacity (CSS)";
+StyleTransformNode.title = "Transformer";
+StyleTransformNode.desc = "Applies Position, Scale, Opacity, and Color (CSS)";
 LiteGraph.registerNodeType("gizmo/operators/style_transform", StyleTransformNode);
 
 // 4. Combine Elements Node (Scene Builder)
@@ -166,8 +181,8 @@ class CombineElementsNode {
             }
         });
 
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
     }
 
@@ -198,8 +213,8 @@ class MarkdownNode {
             this.properties.text = v;
         }, { multiline: true });
 
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
         this.serialize_widgets = true;
         this.size = [250, 60];
@@ -251,8 +266,8 @@ class HTMLContainerNode {
             }
         });
 
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
         this.serialize_widgets = true;
         this.size = [250, 240];
@@ -300,8 +315,8 @@ class RenderToImageNode {
         });
 
         this.img = null; // The cached HTMLImageElement
-        this.color = "#FFA500";
-        this.bgcolor = "#cc8400";
+        this.color = "#b37400";
+        this.bgcolor = "#805300";
         this.title_text_color = "#1a1a1a";
         this.size = [200, 150];
     }
@@ -404,6 +419,8 @@ class RenderToImageNode {
                 if (itemData.style) {
                     if (itemData.style.transform) el.style.transform = itemData.style.transform;
                     if (itemData.style.opacity !== undefined) el.style.opacity = itemData.style.opacity;
+                    if (itemData.style.color) el.style.color = itemData.style.color;
+                    if (itemData.style.backgroundColor) el.style.backgroundColor = itemData.style.backgroundColor;
                 }
             }
             return el;

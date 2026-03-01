@@ -28,13 +28,51 @@
     </div>
     <div class="header-controls">
       <input type="text" id="graph-name" class="graph-name-input" value="gizmograph-workflow" title="Name your graph" />
-      <button id="btn-save" class="btn primary" title="Save graph to JSON file">Save Graph</button>
-      <button id="btn-load" class="btn secondary" title="Load graph from JSON file">Load Graph</button>
-      <button id="btn-clear" class="btn danger" title="Clear canvas">Clear Canvas</button>
-      <button id="btn-arrange" class="btn outline" title="Auto-arrange nodes">Auto-Arrange</button>
-      <button id="btn-toggle-panel" class="btn secondary" title="Toggle Side Presentation Panel">Toggle Split
-        View</button>
-      <button id="btn-present" class="btn accent" title="Open Presentation Window">Popup Presentation</button>
+      <button id="btn-save" class="btn primary icon-btn" title="Save graph to JSON file">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path
+            d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16L21 8V19C21 20.1046 20.1046 21 19 21ZM12 18C13.6569 18 15 16.6569 15 15C15 13.3431 13.6569 12 12 12C10.3431 12 9 13.3431 9 15C9 16.6569 10.3431 18 12 18ZM5 5V9H15V5H5Z">
+          </path>
+        </svg>
+      </button>
+      <button id="btn-load" class="btn secondary icon-btn" title="Load graph from JSON file">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path
+            d="M3 19H21V21H3V19ZM13 13.1716L19.0711 7.1005L20.4853 8.51472L12 17L3.51472 8.51472L4.92893 7.1005L11 13.1716V2H13V13.1716Z">
+          </path>
+        </svg>
+      </button>
+
+      <div class="header-controls-right" style="display: flex; margin-left: auto;">
+        <button id="btn-clear" class="btn danger icon-btn" title="Clear canvas">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M17 6H22V8H20V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V8H2V6H7V3C7 2.44772 7.44772 2 8 2H16C16.5523 2 17 2.44772 17 3V6ZM18 8H6V20H18V8ZM9 11H11V17H9V11ZM13 11H15V17H13V11ZM9 4V6H15V4H9Z">
+            </path>
+          </svg>
+        </button>
+        <button id="btn-arrange" class="btn outline icon-btn" title="Auto-arrange nodes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M11 20H3V12H11V20ZM9 14H5V18H9V14ZM21 20H13V12H21V20ZM19 14H15V18H19V14ZM11 10H3V2H11V10ZM9 4H5V8H9V4ZM21 10H13V2H21V10ZM19 4H15V8H19V4Z">
+            </path>
+          </svg>
+        </button>
+        <button id="btn-present" class="btn accent icon-btn" title="Popup Presentation Window">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M10 19V21L3 21V23H21V21L14 21V19H22C22.5523 19 23 18.5523 23 18V4C23 3.44772 22.5523 3 22 3H2C1.44772 3 1 3.44772 1 4V18C1 18.5523 1.44772 19 2 19H10ZM3 17V5H21V17H3Z">
+            </path>
+          </svg>
+        </button>
+        <button id="btn-toggle-panel" class="btn secondary icon-btn" title="Toggle Side Presentation Panel">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path
+              d="M21 3C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H21ZM13 5H4V19H13V5ZM20 5H15V19H20V5Z">
+            </path>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 

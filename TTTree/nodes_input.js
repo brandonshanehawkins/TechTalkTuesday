@@ -7,11 +7,11 @@ class TextInputNode {
     constructor() {
         this.addOutput("string", "string");
         // Add a widget for the text input
-        this.widget = this.addWidget("text", "Text", "Hello TTTree", (v) => {
+        this.widget = this.addWidget("text", "Text", "GizmoGraph", (v) => {
             this.properties.text = v;
         });
 
-        this.properties = { text: "Hello TTTree" };
+        this.properties = { text: "GizmoGraph" };
         this.color = "#008080"; // Primary brand color for inputs
         this.bgcolor = "#006b6b";
 
@@ -174,6 +174,15 @@ class VideoInputNode {
             this.loadVideoFile();
         });
 
+        this.properties.play = true;
+        this.addWidget("toggle", "Play Media", true, (v) => {
+            this.properties.play = v;
+            if (this.vid) {
+                if (v) this.vid.play();
+                else this.vid.pause();
+            }
+        });
+
         this.vid = null;
         this.size = [200, 150];
 
@@ -258,6 +267,13 @@ class VideoInputNode {
 
     onExecute() {
         if (this.vid) {
+            // Sync play state if needed (mainly for restoring from saved graphs)
+            if (this.properties.play && this.vid.paused) {
+                this.vid.play();
+            } else if (!this.properties.play && !this.vid.paused) {
+                this.vid.pause();
+            }
+
             // Because downstream Render nodes evaluate standard formats, we wrap it with our type specifier
             this.setOutputData(0, { type: 'video', src: this.vid.src, element: this.vid });
         } else {
@@ -436,3 +452,49 @@ class ThemeColorNode {
 ThemeColorNode.title = "Theme Colors";
 ThemeColorNode.desc = "Outputs brand hex colors";
 LiteGraph.registerNodeType("gizmo/inputs/theme_colors", ThemeColorNode);
+
+
+// 7. Solid Layer Node (Rectangle)
+class SolidLayerNode {
+    constructor() {
+        this.addInput("color", "string");
+        this.addOutput("scene_data", 0);
+
+        this.properties = {
+            width: 1920,
+            height: 1080,
+            opacity: 1.0,
+            color: "#000000"
+        };
+
+        this.addWidget("number", "Width", this.properties.width, (v) => { this.properties.width = v; }, { min: 1, max: 8000, step: 10 });
+        this.addWidget("number", "Height", this.properties.height, (v) => { this.properties.height = v; }, { min: 1, max: 8000, step: 10 });
+        this.addWidget("number", "Opacity", this.properties.opacity, (v) => { this.properties.opacity = v; }, { min: 0, max: 1, step: 0.1 });
+        this.addWidget("text", "Color", this.properties.color, (v) => { this.properties.color = v; });
+
+        this.color = "#008080";
+        this.bgcolor = "#006b6b";
+        this.serialize_widgets = true;
+    }
+
+    onExecute() {
+        let inputColor = this.getInputData(0);
+        let finalColor = inputColor !== undefined ? inputColor : this.properties.color;
+
+        // Output a styled element explicitly (wrapper object compatible with Presentation)
+        let payload = {
+            content: { type: 'html', val: '' }, // empty content area
+            style: {
+                width: this.properties.width + "px",
+                height: this.properties.height + "px",
+                opacity: this.properties.opacity,
+                backgroundColor: finalColor
+            }
+        };
+
+        this.setOutputData(0, payload);
+    }
+}
+SolidLayerNode.title = "Solid Layer";
+SolidLayerNode.desc = "Generates a colored rectangle";
+LiteGraph.registerNodeType("gizmo/inputs/solid", SolidLayerNode);

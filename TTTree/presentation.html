@@ -147,10 +147,11 @@
                     if (el) {
                         el.classList.add('dynamic-element');
 
-                        // Apply incoming inline PSR styles if they exist from the Style Transform Node
+                        // Apply incoming inline PSR styles if they exist from the Transformer Node
                         if (itemData.style) {
                             if (itemData.style.transform) el.style.transform = itemData.style.transform;
                             if (itemData.style.opacity !== undefined) el.style.opacity = itemData.style.opacity;
+                            if (itemData.style.color) el.style.color = itemData.style.color;
                         }
                     }
                     return el;
