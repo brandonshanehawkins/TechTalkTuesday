@@ -52,14 +52,21 @@ html {
   flex-shrink: 0;
 }
 
-.logo-container h1 {
+.logo-text {
   font-family: var(--font-heading);
   font-weight: 700;
-  color: var(--primary);
   margin: 0;
   font-size: 1.5rem;
   letter-spacing: -0.5px;
   display: inline-block;
+}
+
+.brand-gizmo {
+  color: var(--primary);
+}
+
+.brand-graph {
+  color: var(--secondary);
 }
 
 .tagline {
@@ -70,6 +77,8 @@ html {
   margin-left: 0.5rem;
   border-left: 1px solid var(--border-subtle);
   padding-left: 0.5rem;
+  display: none;
+  /* Hide for now since the main text is GizmoGraph */
 }
 
 /* Inputs */
