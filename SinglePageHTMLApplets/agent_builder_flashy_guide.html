@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WPP Open Agent Builder — Flashy Condensed Guide</title>
+<style>
+  :root{
+    --bg: #008080;
+    --glass: rgba(255,255,255,0.06);
+    --text: #ffa500;
+    --muted: #f5f5f5;
+    --brand1: #008080;
+    --brand2: #ffa500;
+    --brand3: #bd5e3e;
+    --card: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.12);
+    --shadow: 0 20px 60px rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    color:var(--text);
+    background: radial-gradient(1200px 1200px at 100% -10%, rgba(124,92,255,0.25), transparent 60%),
+                radial-gradient(1000px 1000px at -10% 120%, rgba(9,251,211,0.2), transparent 60%),
+                var(--bg);
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  /* Animated gradient header */
+  .hero{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter: blur(12px);
+    background: linear-gradient(90deg, rgba(3, 222, 229, 0.742), rgba(35, 241, 207, 0.12) 50%, rgba(252, 135, 0, 0.897));
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-inner{
+    max-width:1200px; margin:0 auto; padding:16px 24px; display:flex; gap:16px; align-items:center; justify-content:space-between;
+  }
+  .title{
+    display:flex; flex-direction:column;
+  }
+  .title h1{
+    margin:0; font-size: clamp(22px, 3vw, 34px);
+    background: linear-gradient(90deg, var(--brand2), var(--text), var(--brand2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:0.3px;
+  }
+  .title .sub{color:var(--brand1); font-size:14px;}
+  .actions{display:flex; gap:10px; align-items:center}
+  .btn{cursor:pointer; padding:10px 14px; border-radius:10px; border:1px solid var(--border); color:var(--text); background:var(--glass); box-shadow:var(--shadow); transition:transform .2s, box-shadow .2s, background .2s}
+  .btn:hover{transform:translateY(-2px); box-shadow:0 14px 40px rgba(124,92,255,0.25)}
+  .btn.primary{background:linear-gradient(135deg, rgba(16, 223, 209, 0.813), rgba(28, 67, 68, 0.853)); border-color:transparent}
+
+  /* Layout */
+  .wrap{max-width:1200px; margin:24px auto; padding:0 24px; display:grid; grid-template-columns: 280px 1fr; gap:24px}
+  @media (max-width: 980px){ .wrap{grid-template-columns:1fr} .toc{position:static} }
+
+  /* TOC */
+  .toc{position:sticky; top:84px; align-self:start; background:var(--glass); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
+  .toc h3{margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:1px; color:var(--muted)}
+  .toc a{display:block; padding:8px 10px; border-radius:10px; color:var(--text); text-decoration:none; border:1px solid transparent}
+  .toc a:hover{border-color:var(--border); background:rgba(255,255,255,0.04)}
+  .toc a.active{background:linear-gradient(90deg, rgba(124,92,255,0.25), rgba(9,251,211,0.2));}
+
+  /* Cards */
+  .card{margin:0 0 16px 0; padding:18px 18px 16px; border-radius:16px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); position:relative; overflow:hidden}
+  .card h2{margin:0 0 6px; font-size:22px}
+  .card .hint{color:var(--muted); font-size:14px; margin-bottom:8px}
+
+  /* Fancy bullets */
+  ul{list-style:none; padding:0; margin:10px 0 0}
+  li{padding-left:28px; position:relative; margin:8px 0}
+  li:before{content:""; position:absolute; left:6px; top:10px; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 30% 30%, var(--brand2), var(--brand1)); box-shadow:0 0 0 3px rgba(124,92,255,0.18)}
+
+  /* Steps ribbon */
+  .steps{display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:10px}
+  .step{padding:14px; border-radius:14px; border:1px dashed rgba(255,255,255,0.18); background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); position:relative}
+  .step .num{position:absolute; top:-10px; right:-10px; width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--brand1), var(--brand2)); display:grid; place-items:center; font-weight:700; color:#000}
+
+  /* Accordions */
+  details{margin-top:8px; border:1px solid var(--border); border-radius:12px; background:rgba(255,255,255,0.04); overflow:hidden}
+  summary{cursor:pointer; padding:12px 14px; font-weight:600; list-style:none}
+  summary::-webkit-details-marker{display:none}
+  details > div{padding:0 14px 12px}
+
+  /* Code/keys */
+  .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:6px; border:1px solid var(--border)}
+
+  /* Section highlight animation */
+  .pulse{position:absolute; inset:0; pointer-events:none; background: radial-gradient(800px 300px at var(--x) var(--y), rgba(9,251,211,0.12), transparent 60%)}
+
+  /* Footer */
+  .footer{padding:60px 24px; text-align:center; color:var(--muted)}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="title">
+      <h1>Agent Builder — Flashy Condensed Guide</h1>
+      <div class="sub">Speed-run reference for creating high-performing Agents in WPP Open</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="compactToggle" title="Toggle Compact Mode">Compact</button>
+      <a class="btn primary" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to Top</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- TOC -->
+  <nav class="toc" id="toc">
+    <h3>On this page</h3>
+    <a href="#what" class="active">What are Agents?</a>
+    <a href="#why">Why create Agents?</a>
+    <a href="#build">7‑Step build</a>
+    <a href="#data">Optimizing data</a>
+    <a href="#profile">Agent profile</a>
+    <a href="#advanced">Advanced settings</a>
+    <a href="#instructions">Instructions & tools</a>
+    <a href="#testing">Testing</a>
+    <a href="#feedback">Feedback & learning</a>
+    <a href="#publish">Publishing & sharing</a>
+    <a href="#manage">Managing agents</a>
+    <a href="#best">Best practices</a>
+    <a href="#team">Agentic Team</a>
+    <a href="#compare">Agents vs Brains vs Assistant</a>
+    <a href="#examples">Examples</a>
+    <a href="#help">Help</a>
+  </nav>
+
+  <!-- CONTENT -->
+  <section id="content">
+
+    <article class="card" id="what">
+      <div class="pulse"></div>
+      <h2>What are Agents?</h2>
+      <p class="hint">AI-powered assistants tailored to specific purposes with defined capabilities and limitations.</p>
+      <ul>
+        <li>Automate tasks, provide insights, and enhance decision‑making.</li>
+        <li>Types: <b>Project</b>, <b>Workspace</b>, and <b>Certified</b> Agents.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="why">
+      <div class="pulse"></div>
+      <h2>Why create Agents?</h2>
+      <ul>
+        <li>Reduce repetitive work and errors; improve speed and consistency.</li>
+        <li>Adapt quickly via feedback; optimize workflows and costs.</li>
+        <li>Improve decisions with data; personalize using grounded knowledge.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="build">
+      <div class="pulse"></div>
+      <h2>7‑Step build</h2>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><b>Prepare Data</b> — clean, structured, concise; prefer .txt.</div>
+        <div class="step"><span class="num">2</span><b>Upload Data</b> — add relevant docs in the Data tab.</div>
+        <div class="step"><span class="num">3</span><b>Define Profile</b> — name, description, Expert/Persona, image, tone.</div>
+        <div class="step"><span class="num">4</span><b>Instructions</b> — system prompt, tools, optional CoT/Steps.</div>
+        <div class="step"><span class="num">5</span><b>Test</b> — Evaluation + UAT.</div>
+        <div class="step"><span class="num">6</span><b>Publish</b> — start at project level.</div>
+        <div class="step"><span class="num">7</span><b>Iterate</b> — refine via feedback, memories, testing.</div>
+      </div>
+    </article>
+
+    <article class="card" id="data">
+      <div class="pulse"></div>
+      <h2>Optimizing data</h2>
+      <details open>
+        <summary>Golden rules</summary>
+        <div>
+          <ul>
+            <li>Keep language clear and formatting consistent.</li>
+            <li>Avoid huge files (> 50 MB) and cluttered documents.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>By file type</summary>
+        <div>
+          <ul>
+            <li><b>Word/PDF</b>: extract text; use headings and lists; OCR if needed.</li>
+            <li><b>PowerPoint</b>: pull slide text; keep order; remove decorative visuals.</li>
+            <li><b>Excel</b>: tidy columns; avoid merged cells; keep tables small (~≤100 rows).</li>
+            <li><b>Images</b>: provide concise descriptions.</li>
+            <li><b>Audio/Video</b>: add transcripts and time‑coded summaries.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="card" id="profile">
+      <div class="pulse"></div>
+      <h2>Agent profile</h2>
+      <ul>
+        <li><b>Expert</b>: task specialist and knowledge hub.</li>
+        <li><b>Persona</b>: audience POV and preferences.</li>
+        <li>Set personality/tone and image; choose tools and capabilities.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="advanced">
+      <div class="pulse"></div>
+      <h2>Advanced settings</h2>
+      <ul>
+        <li><b>Temperature</b>: creativity (0.2 factual → 1.5+ creative).</li>
+        <li><b>Top P</b>: focus (lower = deterministic).</li>
+        <li><b>Max Tokens</b>: response length.</li>
+        <li><b>Top K</b>: word‑choice variety. <i>Tip: Defaults work best.</i></li>
+      </ul>
+    </article>
+
+    <article class="card" id="instructions">
+      <div class="pulse"></div>
+      <h2>Instructions & tools</h2>
+      <details open>
+        <summary>System prompt, CoT, and Steps</summary>
+        <div>
+          <ul>
+            <li><b>System Prompt</b> sets role, scope, rules, and formatting.</li>
+            <li><b>Chain of Thought</b> for reasoning‑heavy tasks (don’t mix with Steps).</li>
+            <li><b>Steps (Pro)</b> define multi‑stage flows with per‑step actions.</li>
+            <li><b>Required Info + Input Form (beta)</b> collect structured inputs.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Tools</summary>
+        <div>
+          <ul>
+            <li><b>Web Search</b> — real‑time info.</li>
+            <li><b>Code Interpreter</b> — Python for data/automation.</li>
+            <li><b>Artifact Generation</b> — produce docs and structured outputs.</li>
+          </ul>
+        </div>
+      </details>
+    </article>
+
+    <article class="card" id="testing">
+      <div class="pulse"></div>
+      <h2>Testing</h2>
+      <ul>
+        <li><b>Evaluation (Automated)</b>: inputs + ideal outputs → quality score; fix failures.</li>
+        <li><b>UAT</b>: real users verify clarity, tone, and edge cases.</li>
+        <li>Re‑test after changes; keep scenarios in a spreadsheet for reuse.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="feedback">
+      <div class="pulse"></div>
+      <h2>Feedback & learning</h2>
+      <ul>
+        <li><b>Feedback</b> can turn into <b>Memories</b> that shape responses.</li>
+        <li><b>Guardrails</b> enforce boundaries; <b>User memories</b> personalize.</li>
+        <li><b>Learning Mode (beta)</b> captures improvements automatically.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="publish">
+      <div class="pulse"></div>
+      <h2>Publishing & sharing</h2>
+      <ul>
+        <li>Publish first at <b>project</b> level; expand after testing.</li>
+        <li>Share to <b>brand</b>, <b>client</b>, <b>market</b>, or <b>tenant</b> (permissions required).</li>
+        <li>Agents appear in Chat, AI Tools, Canvas, Content Matrix (Personas), Focus Groups.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="manage">
+      <div class="pulse"></div>
+      <h2>Managing agents</h2>
+      <ul>
+        <li>Set <b>Default</b> for reliability across workflows.</li>
+        <li>Edit, Duplicate, Delete; keep a Template agent for variations.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="best">
+      <div class="pulse"></div>
+      <h2>Best practices</h2>
+      <ul>
+        <li>Define purpose and target audience/tone.</li>
+        <li>Clean, minimal data; keep prompts concise; avoid redundancy.</li>
+        <li>Test broadly; review feedback; iterate regularly.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="team">
+      <div class="pulse"></div>
+      <h2>Agentic Team</h2>
+      <p>Beta model that coordinates multiple Agents in a project to work together on a goal.</p>
+    </article>
+
+    <article class="card" id="compare">
+      <div class="pulse"></div>
+      <h2>Agents vs Brains vs AI Assistant</h2>
+      <ul>
+        <li><b>AI Assistant</b> orchestrates workflows and invokes agents/brains.</li>
+        <li><b>Agents</b> perform grounded tasks using your uploaded knowledge.</li>
+        <li><b>Brains</b> are deeply trained services for complex, brand‑specific outputs.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="examples">
+      <div class="pulse"></div>
+      <h2>Examples</h2>
+      <ul>
+        <li>Brand/Product Experts; Playbooks & Guidelines.</li>
+        <li>Persona/Audience; Channel Format Experts.</li>
+        <li>Project Brief Agents; Retail/Category Experts.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="help">
+      <div class="pulse"></div>
+      <h2>Help</h2>
+      <ul>
+        <li>Use the help icon in WPP Open for guides, FAQs, and support tickets.</li>
+      </ul>
+    </article>
+
+    <div class="footer">© 2026 WPP Open — Reference summary prepared for Agent Builder Coach</div>
+
+  </section>
+</main>
+
+<script>
+  // Compact mode toggler
+  const compactBtn = document.getElementById('compactToggle');
+  let compact = false;
+  compactBtn.addEventListener('click', ()=>{
+    compact = !compact;
+    document.querySelectorAll('.card').forEach(c=>{
+      c.style.padding = compact ? '14px' : '18px';
+    });
+    document.querySelectorAll('.card h2').forEach(h=>{
+      h.style.fontSize = compact ? '18px' : '22px';
+    });
+    compactBtn.textContent = compact ? 'Comfort' : 'Compact';
+  });
+
+  // TOC active state on scroll
+  const tocLinks = [...document.querySelectorAll('#toc a')];
+  const sections = tocLinks.map(a => document.querySelector(a.getAttribute('href')));
+  const onScroll = ()=>{
+    const y = window.scrollY + 100;
+    let idx = 0;
+    sections.forEach((sec,i)=>{ if(sec.offsetTop <= y) idx = i; });
+    tocLinks.forEach(l=>l.classList.remove('active'));
+    tocLinks[idx]?.classList.add('active');
+  };
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // Pointer‑driven pulse highlight
+  document.querySelectorAll('.card').forEach(card=>{
+    const pulse = card.querySelector('.pulse');
+    card.addEventListener('pointermove', (e)=>{
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      pulse.style.setProperty('--x', x+'px');
+      pulse.style.setProperty('--y', y+'px');
+    });
+  });
+</script>
+</body>
+</html>

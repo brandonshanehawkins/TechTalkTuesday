@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aspect Ratio Calculator – Simple</title>
+<style>
+  :root {
+    /* attention‑grabbing theme: dark navy base + pink→yellow gradient accents */
+    --bg: #f3f3f7;      /* primary navy background */
+    --panel: #1a1a40;   /* slightly lighter panel behind card */
+    --text: #ffffff;    /* white copy on dark surface */
+    --muted: #cccccc;   /* grey secondary text */
+    --accent: #ff0083;  /* vivid magenta (start of gradient) */
+    --accent2: #fff200; /* bright yellow (end of gradient) */
+    --danger: #ff5c00;  /* orange for warnings */
+    --input: #2a2a4a;   /* dark input fields */
+    --border: #444477;  /* subtle border on dark bg */
+    --focus: #ff0083;   /* magenta focus ring */
+    --gradient: linear-gradient(135deg, #ff0083 0%, #fff200 100%);
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
+  .wrap { max-width: 760px; margin: 32px auto; padding: 0 16px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  p.sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .grid { display:grid; gap:12px; grid-template-columns: repeat(12, 1fr); align-items: end; }
+  label { font-size: 12px; color: var(--muted); display:block; margin: 0 0 6px; }
+  input[type="number"], input[type="text"], select {
+    width: 100%; padding: 10px 12px; border-radius: 8px; background: var(--input); color: var(--text);
+    border: 1px solid var(--border); outline: none; font-size: 14px;
+  }
+  input:focus, select:focus { border-color: var(--focus); box-shadow: 0 0 0 3px #3b82f633; }
+  button {
+    padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text);
+    font-size: 14px; cursor: pointer; transition: background 0.2s;
+  }
+  button.primary {
+    background: var(--gradient);
+    border-color: transparent;
+    color: #000050;
+  }
+  button.primary:hover { filter: brightness(1.1); }
+  button.ghost {
+    background: transparent;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  button.ghost:hover {
+    background: var(--accent);
+    color: #000050;
+  }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .badge { padding: 6px 10px; border-radius: 999px; background:#202636; border:1px solid var(--border); color: var(--muted); font-size:12px; }
+  .out { background:#0b0d12; border:1px dashed #2a3040; border-radius:8px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .ok { color: var(--accent2); }
+  .warn { color: var(--danger); }
+  .split { display:flex; gap:12px; flex-wrap:wrap; }
+  .col { flex:1 1 280px; }
+  .tiny { font-size: 12px; color: var(--muted); }
+  .center { text-align:center; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Aspect Ratio Calculator</h1>
+      <p class="sub">Pick or type a ratio. Enter either <strong>Width</strong> or <strong>Height</strong> — the other fills in automatically. Paste any size (e.g., <em>2048×1152</em>) to get the simplified ratio.</p>
+
+      <div class="split">
+        <div class="col">
+          <div class="grid">
+            <div style="grid-column: span 7;">
+              <label for="ratioPreset">Preset ratio</label>
+              <select id="ratioPreset">
+                <optgroup label="Common">
+                  <option value="16:9">16:9 (HD / YouTube)</option>
+                  <option value="9:16">9:16 (Vertical / Stories)</option>
+                  <option value="1:1">1:1 (Square)</option>
+                  <option value="4:5">4:5 (Instagram portrait)</option>
+                  <option value="4:3">4:3 (Classic)</option>
+                  <option value="21:9">21:9 (Ultrawide)</option>
+                </optgroup>
+                <optgroup label="Social variants">
+                  <option value="5:4">5:4</option>
+                  <option value="3:2">3:2</option>
+                  <option value="2:3">2:3</option>
+                </optgroup>
+              </select>
+            </div>
+            <div style="grid-column: span 5;">
+              <label for="customRatio">Or type ratio (W:H)</label>
+              <input type="text" id="customRatio" placeholder="e.g., 19:10" />
+            </div>
+
+            <div style="grid-column: span 6;">
+              <label for="width">Width (px)</label>
+              <input type="number" id="width" inputmode="numeric" placeholder="e.g., 1080" />
+            </div>
+            <div style="grid-column: span 6;">
+              <label for="height">Height (px)</label>
+              <input type="number" id="height" inputmode="numeric" placeholder="e.g., 1920" />
+            </div>
+
+            <div style="grid-column: span 6;">
+              <button id="calcFromW" class="primary" title="Calculate height from width">Calc from Width</button>
+            </div>
+            <div style="grid-column: span 6;">
+              <button id="calcFromH" class="primary" title="Calculate width from height">Calc from Height</button>
+            </div>
+
+            <div style="grid-column: span 12;">
+              <div class="row">
+                <button id="swapWH" class="ghost" title="Swap width and height">Swap W↔H</button>
+                <button id="flipRatio" class="ghost" title="Invert ratio (W:H → H:W)">Flip Ratio</button>
+                <button id="copyDims" class="ghost" title="Copy current dimensions">Copy  W×H</button>
+                <button id="copyRatio" class="ghost" title="Copy simplified ratio">Copy  Ratio</button>
+              </div>
+            </div>
+
+            <div style="grid-column: span 12;">
+              <label>Output</label>
+              <div id="out" class="out tiny">
+                —
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <label for="sizePaste">Paste a size (any format)</label>
+          <input id="sizePaste" type="text" placeholder="Try: 1920x1080 or 2048 × 1152 or 1080 / 1920" />
+          <div class="row" style="margin-top:8px;">
+            <button id="parseSize">Parse & Simplify</button>
+            <button id="clearAll">Clear</button>
+          </div>
+
+
+          <div style="margin-top:12px;">
+            <label>Quick picks</label>
+            <div class="row">
+              <button data-quick="1920x1080">1920×1080</button>
+              <button data-quick="1080x1920">1080×1920</button>
+              <button data-quick="1080x1080">1080×1080</button>
+              <button data-quick="2048x1152">2048×1152</button>
+              <button data-quick="3840x2160">3840×2160</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label>Validation</label>
+            <div id="validation" class="tiny muted">—</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="tiny center muted" style="margin-top:14px;">
+        Single-file, offline. No tracking, no dependencies. Built for quick office math.
+      </p>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const preset = document.getElementById('ratioPreset');
+  const custom = document.getElementById('customRatio');
+  const widthEl = document.getElementById('width');
+  const heightEl = document.getElementById('height');
+  const out = document.getElementById('out');
+  const validation = document.getElementById('validation');
+
+  // Helpers
+  const clampPos = n => (isFinite(n) && n > 0) ? n : NaN;
+  const gcd = (a,b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a,b] = [b, a % b]; return a || 1; };
+  const parseRatio = (txt) => {
+    const s = (txt || '').toString().trim().replace(/[^\d:./]/g,'');
+    if (!s) return null;
+    // Accept forms like "16:9", "16/9", "1.777", "1.777:1"
+    if (/^\d+[:/]\d+$/.test(s)) {
+      const parts = s.split(/[:/]/).map(Number);
+      const g = gcd(parts[0], parts[1]);
+      return { w: parts[0]/g, h: parts[1]/g };
+    }
+    if (/^\d+(\.\d+)?$/.test(s)) {
+      const f = parseFloat(s);
+      if (f > 0) return { w: f, h: 1 };
+    }
+    if (/^\d+(\.\d+)?[:/]\d+(\.\d+)?$/.test(s)) {
+      const parts = s.split(/[:/]/).map(parseFloat);
+      const g = gcd(Math.round(parts[0]*1000), Math.round(parts[1]*1000));
+      return { w: (parts[0]*1000)/g, h: (parts[1]*1000)/g };
+    }
+    return null;
+  };
+  const ratioText = (w,h) => {
+    const G = gcd(Math.round(w), Math.round(h));
+    return `${Math.round(w/G)}:${Math.round(h/G)}`;
+  };
+  const activeRatio = () => {
+    const fromCustom = parseRatio(custom.value);
+    if (fromCustom && isFinite(fromCustom.w) && isFinite(fromCustom.h)) return fromCustom;
+    const fromPreset = parseRatio(preset.value);
+    return fromPreset || { w: 16, h: 9 };
+  };
+  const setOut = (msg) => out.innerHTML = msg;
+
+  function calcFromWidth() {
+    const r = activeRatio();
+    const W = clampPos(parseFloat(widthEl.value));
+    if (!isFinite(W)) { setOut(`<span class="warn">Enter a valid width.</span>`); return; }
+    const H = Math.round(W * (r.h / r.w));
+    heightEl.value = H;
+    report(W, H, r);
+  }
+
+  function calcFromHeight() {
+    const r = activeRatio();
+    const H = clampPos(parseFloat(heightEl.value));
+    if (!isFinite(H)) { setOut(`<span class="warn">Enter a valid height.</span>`); return; }
+    const W = Math.round(H * (r.w / r.h));
+    widthEl.value = W;
+    report(W, H, r);
+  }
+
+  function report(W, H, r) {
+    const simplified = ratioText(r.w, r.h);
+    const actualSimplified = ratioText(W, H);
+    const matches = simplified === actualSimplified;
+    validation.textContent = matches
+      ? `Exact match for ${simplified}`
+      : `Closest integer match is ${actualSimplified} (target ${simplified})`;
+    setOut(
+      `<div><strong>Dimensions:</strong> ${W} × ${H}px</div>
+       <div><strong>Target ratio:</strong> ${simplified}</div>
+       <div><strong>Actual ratio:</strong> ${actualSimplified} ${matches ? '<span class="ok">✓</span>' : '<span class="warn">•</span>'}</div>
+       <div><strong>Decimal (W/H):</strong> ${(W/H).toFixed(5)}</div>`
+    );
+  }
+
+  function flipRatio() {
+    const r = activeRatio();
+    const flipped = `${r.h}:${r.w}`;
+    custom.value = flipped;
+    // keep preset UI in sync by clearing it
+    preset.value = flipped;
+  }
+
+  function swapWH() {
+    const W = widthEl.value;
+    const H = heightEl.value;
+    widthEl.value = H;
+    heightEl.value = W;
+    if (W && H) {
+      report(parseFloat(heightEl.value), parseFloat(widthEl.value), activeRatio());
+    }
+  }
+
+  function copyText(text) {
+    if (!navigator.clipboard) return alert(text);
+    navigator.clipboard.writeText(text).then(() => {
+      validation.textContent = `Copied: ${text}`;
+    }).catch(() => alert(text));
+  }
+
+  function parsePasted() {
+    const raw = document.getElementById('sizePaste').value.trim();
+    if (!raw) { validation.textContent = '—'; return; }
+    const cleaned = raw.toLowerCase().replace(/[^\d.x×/]/g, '');
+    // Try patterns like 1920x1080, 1920×1080, 1920/1080
+    const m = cleaned.match(/^(\d+)[x×/](\d+)$/);
+    if (!m) { validation.textContent = 'Could not read size. Try 1920x1080.'; return; }
+    const W = parseInt(m[1], 10);
+    const H = parseInt(m[2], 10);
+    widthEl.value = W; heightEl.value = H;
+    const rtxt = ratioText(W, H);
+    custom.value = rtxt;
+    preset.value = rtxt;
+    report(W, H, parseRatio(rtxt));
+  }
+
+  function setQuick(e) {
+    const s = e.target?.getAttribute?.('data-quick');
+    if (!s) return;
+    document.getElementById('sizePaste').value = s;
+    parsePasted();
+  }
+
+  // Events
+  document.getElementById('calcFromW').addEventListener('click', calcFromWidth);
+  document.getElementById('calcFromH').addEventListener('click', calcFromHeight);
+  document.getElementById('swapWH').addEventListener('click', swapWH);
+  document.getElementById('flipRatio').addEventListener('click', flipRatio);
+  document.getElementById('copyDims').addEventListener('click', () => {
+    const W = widthEl.value || '?';
+    const H = heightEl.value || '?';
+    copyText(`${W}×${H}`);
+  });
+  document.getElementById('copyRatio').addEventListener('click', () => {
+    const r = activeRatio();
+    copyText(ratioText(r.w, r.h));
+  });
+  document.getElementById('parseSize').addEventListener('click', parsePasted);
+  document.getElementById('clearAll').addEventListener('click', () => {
+    widthEl.value = ''; heightEl.value = ''; custom.value = '';
+    document.getElementById('sizePaste').value = '';
+    preset.value = '16:9';
+    validation.textContent = '—';
+    setOut('—');
+  });
+  document.querySelectorAll('[data-quick]').forEach(btn => btn.addEventListener('click', setQuick));
+
+  // Keep preset/custom in sync: typing in custom overrides preset display
+  custom.addEventListener('input', () => { /* leave preset as-is; calculation uses custom when present */ });
+  preset.addEventListener('change', () => { custom.value = ''; });
+
+  // Quality-of-life: Enter in width triggers calc from width; Enter in height triggers calc from height
+  widthEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcFromWidth(); });
+  heightEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcFromHeight(); });
+
+  // First paint
+  setOut('—');
+})();
+</script>
+</body>
+</html>
