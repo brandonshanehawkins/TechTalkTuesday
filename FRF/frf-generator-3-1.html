@@ -1,0 +1,503 @@
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRF Generator</title>
+<style>
+  :root {
+    --bg:#000050; --panel:#151821; --panel2:#1b2030; --text:#e8eef6;
+    --muted:#ffef2c; --brand:#4ea1ff; --accent:#8df0a9; --border:#2a3244;
+  }
+  body {margin:0;padding:24px;font-family:system-ui;background:#0b0c0f;color:var(--text);} 
+  .wrap{max-width:700px;margin:auto;} 
+  h1{margin:0;font-size:24px;color:var(--accent);} 
+  .sub{color:var(--muted);font-size:14px;margin-top:6px;}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:20px;}
+  .field{margin-bottom:16px;} 
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+  input,select,textarea{width:100%;background:#0f1320;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:15px;box-sizing:border-box;}
+  textarea{min-height:80px;font-family:system-ui;resize:vertical;}
+  select{cursor:pointer;} 
+  .row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;} 
+  .btn{padding:12px 18px;border-radius:8px;border:1px solid var(--border);background:#0f1524;color:var(--text);cursor:pointer;font-size:14px;font-weight:500;border:none;}
+  .btn:hover{opacity:0.8;}
+  .primary{background:linear-gradient(180deg,#4ea1ff,#2d7dd2);border:none;} 
+  .secondary{background:linear-gradient(180deg,#8df0a9,#5bc97d);color:#000;}
+  #status{font-size:13px;color:var(--accent);align-self:center;}
+  .preview{background:#0a0b10;border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:20px;font-family:monospace;font-size:12px;white-space:pre-wrap;max-height:400px;overflow-y:auto;display:none;}
+  .preview.show{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>FRF Generator</h1>
+  <div class="sub">Select a freelancer/vendor and fill in the project details</div>
+</header>
+
+<section class="card">
+  <div class="field">
+    <label>Freelancer/Vendor Name</label>
+    <select id="freelancerSelect" onchange="updateRate()">
+      <option value="">-- Select a freelancer or vendor --</option>
+      <option value="Kelsey Ross">Kelsey Ross</option>
+      <option value="Kyle Kramb">Kyle Kramb</option>
+      <option value="Dan Bartolucci (Bartolucci Post, LLC)">Dan Bartolucci (Bartolucci Post, LLC)</option>
+      <option value="Glenn Parsons">Glenn Parsons</option>
+      <option value="Nikki Finn (Reprise Post)">Nikki Finn (Reprise Post)</option>
+      <option value="Rick Unger">Rick Unger</option>
+      <option value="Jon Jovich (Dragonfly FX, LLC.)">Jon Jovich (Dragonfly FX, LLC.)</option>
+      <option value="John Garstecki">John Garstecki</option>
+      <option value="Kevin Jones (Hold Fast Post, LLC)">Kevin Jones (Hold Fast Post, LLC)</option>
+      <option value="Sam Puglise-Kipley (Whitehouse Post)">Sam Puglise-Kipley (Whitehouse Post)</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Requested by</label>
+    <select id="requestedBy">
+      <option value="">-- Select requester --</option>
+      <option value="Catherine Pink">Catherine Pink</option>
+      <option value="Erik Iversen">Erik Iversen</option>
+      <option value="Jeannine Thompson">Jeannine Thompson</option>
+      <option value="Joan Porter">Joan Porter</option>
+      <option value="John Kulas">John Kulas</option>
+      <option value="Mark Lomax">Mark Lomax</option>
+      <option value="Rob Rose">Rob Rose</option>
+      <option value="Ryan Rosbury">Ryan Rosbury</option>
+      <option value="Sue Witham">Sue Witham</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Maconomy Number</label>
+    <input id="maconomy" placeholder="Enter Maconomy number">
+  </div>
+
+  <div class="field">
+    <label>Silent Partner Number</label>
+    <input id="silentPartner" placeholder="Enter Silent Partner number">
+  </div>
+
+  <div class="field">
+    <label>Account/Project</label>
+    <input id="account" placeholder="Enter account or project name">
+  </div>
+
+  <div class="field">
+    <label>Proposed Start Date</label>
+    <input id="startDate" type="date">
+  </div>
+
+  <div class="field">
+    <label>Estimated End Date</label>
+    <input id="endDate" type="date">
+  </div>
+
+  <div class="field">
+    <label>Rate</label>
+    <input id="rate" placeholder="Rate will auto-fill when you select a freelancer/vendor">
+  </div>
+
+  <div class="field">
+    <label>Estimated Total Cost</label>
+    <input id="totalCost" placeholder="Enter estimated total cost">
+  </div>
+
+  <div class="field">
+    <label>Rev Attached</label>
+    <textarea id="revAttached" placeholder="Specify which line item(s) this is pulling from"></textarea>
+  </div>
+
+  <div class="field">
+    <label>Equipment Needs</label>
+    <textarea id="equipmentNeeds" placeholder="List equipment needs (if applicable)"></textarea>
+  </div>
+
+  <div class="field">
+    <label>Extension or New Hire</label>
+    <input id="extensionOrNew" placeholder="e.g., Extension, New Hire, Reactivation">
+  </div>
+
+  <div class="field">
+    <label>Reason for Hire</label>
+    <textarea id="reasonForHire" placeholder="Explain the reason for this hire"></textarea>
+  </div>
+
+  <div class="field">
+    <label>Notes</label>
+    <textarea id="notes" placeholder="Any additional notes (e.g., approx. hours needed)"></textarea>
+  </div>
+
+  <div class="row">
+    <button type="button" class="btn primary" onclick="emailAndDownload()">📧 Email + Download</button>
+    <button type="button" class="btn secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    <button type="button" class="btn" onclick="togglePreview()">👁️ Preview</button>
+    <button type="button" class="btn" onclick="resetForm()">Reset</button>
+    <span id="status"></span>
+  </div>
+
+  <div class="preview" id="preview"></div>
+</section>
+</div>
+
+<script type="text/javascript">
+// Template data - defined first
+var TEMPLATES = {
+  "Kelsey Ross": {
+    name: "Kelsey Ross",
+    email: "ross.m.kelsey@gmail.com",
+    phone: "517-990-7845",
+    address: "957 Novi Rd. Apt. 10 Northville, MI 48167",
+    jobTitle: "Finish Editor",
+    hiringManager: "Erik Iversen",
+    location: "Territory Post/Remote",
+    rate: "$100/hour",
+    macSecretary: "Shanice Pinson"
+  },
+  "Kyle Kramb": {
+    name: "Kyle Kramb",
+    email: "kyle@ninemilecircle.com",
+    phone: "(347) 268-2532",
+    jobTitle: "Creative Editor / Finishing Editor",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$1000/day",
+    macSecretary: "Shanice Pinson"
+  },
+  "Dan Bartolucci (Bartolucci Post, LLC)": {
+    name: "Dan Bartolucci (Bartolucci Post, LLC)",
+    email: "dan@bartoluccipost.com",
+    phone: "805.490.3648",
+    jobTitle: "Finishing Editor/VFX Flame/Clean Up",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "[include vendor rate or 'see quote']",
+    macSecretary: "Shanice Pinson"
+  },
+  "Glenn Parsons": {
+    name: "Glenn Parsons",
+    email: "glenn@glennparsonscreative.com",
+    phone: "248.895.4170",
+    jobTitle: "Animator",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$800/day",
+    macSecretary: "Shanice Pinson"
+  },
+  "Nikki Finn (Reprise Post)": {
+    name: "Nikki Finn (Reprise Post)",
+    email: "nikki@reprisepost.com",
+    phone: "248.761.0950",
+    jobTitle: "Creative Editor, AE",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "[include vendor rate or 'see quote']",
+    macSecretary: "Shanice Pinson"
+  },
+  "Rick Unger": {
+    name: "Rick Unger",
+    email: "rick@ungercolor.com",
+    phone: "313.401.1301",
+    jobTitle: "Colorist",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$250/hr",
+    macSecretary: "Shanice Pinson"
+  },
+  "Jon Jovich (Dragonfly FX, LLC.)": {
+    name: "Jon Jovich (Dragonfly FX, LLC.)",
+    email: "pjovich@comcast.net",
+    phone: "248.790.9106",
+    jobTitle: "VFX Artist",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$960/day",
+    macSecretary: "Shanice Pinson"
+  },
+  "John Garstecki": {
+    name: "John Garstecki",
+    email: "johngarmusic@gmail.com",
+    phone: "(586) 322-8472",
+    jobTitle: "Audio Engineer",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$62.50/hr",
+    macSecretary: "Shanice Pinson"
+  },
+  "Kevin Jones (Hold Fast Post, LLC)": {
+    name: "Kevin Jones (Hold Fast Post, LLC)",
+    email: "kevin@holdfastpost.com",
+    phone: "586.260.4650",
+    jobTitle: "Finishing Editor/VFX Flame/Clean Up",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "$150/hr",
+    macSecretary: "Shanice Pinson"
+  },
+  "Sam Puglise-Kipley (Whitehouse Post)": {
+    name: "Sam Puglise-Kipley (Whitehouse Post)",
+    email: "spkipley@whitehousepost.com",
+    phone: "312-822-0888",
+    jobTitle: "Offline Editor",
+    hiringManager: "Erik Iversen",
+    location: "Remote",
+    rate: "[include vendor rate or 'see quote']",
+    macSecretary: "Shanice Pinson"
+  }
+};
+
+var TO_EMAIL = "shanice.pinson@wppproduction.com";
+var CC_EMAILS = "lisa.bryant@wppproduction.com,robyn.frank@wppproduction.com";
+
+// Update rate when freelancer selected
+function updateRate() {
+  var selectEl = document.getElementById('freelancerSelect');
+  var rateEl = document.getElementById('rate');
+  var selectedName = selectEl.value;
+  
+  if (selectedName && TEMPLATES[selectedName]) {
+    rateEl.value = TEMPLATES[selectedName].rate;
+  } else {
+    rateEl.value = '';
+  }
+
+  // whenever the rate changes automatically recalc cost
+  calculateEstimatedCost();
+}
+
+// count weekdays (Mon–Fri) inclusive between two dates
+function countWeekdays(startDate, endDate) {
+  if (!(startDate instanceof Date) || !(endDate instanceof Date)) return 0;
+  var count = 0;
+  var cur = new Date(startDate);
+  // normalize time portion to avoid DST issues
+  cur.setHours(0,0,0,0);
+  endDate = new Date(endDate);
+  endDate.setHours(0,0,0,0);
+  while (cur <= endDate) {
+    var day = cur.getDay();
+    if (day !== 0 && day !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
+// parse rate string to number; supports dollar signs and commas
+function parseRate(rateStr) {
+  if (!rateStr) return NaN;
+  var num = parseFloat(rateStr.replace(/[^0-9.]/g, ''));
+  return isNaN(num) ? NaN : num;
+}
+
+function calculateEstimatedCost() {
+  var start = document.getElementById('startDate').value;
+  var end = document.getElementById('endDate').value;
+  var rateStr = document.getElementById('rate').value;
+  if (!start || !end || !rateStr) return;
+
+  var startDate = new Date(start);
+  var endDate = new Date(end);
+  if (isNaN(startDate) || isNaN(endDate)) return;
+
+  var weekdays = countWeekdays(startDate, endDate);
+  if (weekdays <= 0) return;
+
+  var rate = parseRate(rateStr);
+  if (isNaN(rate)) return;
+
+  var cost;
+  // if the rate string mentions "day" (but not "hour"), treat it as a daily rate
+  if (/\bday\b/i.test(rateStr) && !/\bhour\b/i.test(rateStr)) {
+    cost = weekdays * rate;
+  } else {
+    // assume hourly rate, with a 10‑hour workday
+    cost = weekdays * 10 * rate;
+  }
+
+  document.getElementById('totalCost').value = '$' + cost.toFixed(2);
+}
+
+// attach listeners to recalc when dates or rate change
+['startDate','endDate','rate'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('change', calculateEstimatedCost);
+});
+
+
+function val(id) {
+  var el = document.getElementById(id);
+  if (!el) return "";
+  if (el.type === 'date' && el.value) {
+    return new Date(el.value + "T00:00:00").toLocaleDateString();
+  }
+  return el.value.trim();
+}
+
+function buildFRF() {
+  var selectedName = val('freelancerSelect');
+  if (!selectedName) {
+    alert('Please select a freelancer or vendor');
+    return null;
+  }
+
+  var template = TEMPLATES[selectedName];
+  var requestedBy = val('requestedBy');
+  var maconomy = val('maconomy');
+  var silentPartner = val('silentPartner');
+  var account = val('account');
+  var startDate = val('startDate');
+  var endDate = val('endDate');
+  var rate = val('rate');
+  var totalCost = val('totalCost');
+  var revAttached = val('revAttached');
+  var equipmentNeeds = val('equipmentNeeds');
+  var extensionOrNew = val('extensionOrNew');
+  var reasonForHire = val('reasonForHire');
+  var notes = val('notes');
+
+  var frf = "Name: " + template.name + "\n";
+  frf += "Email: " + template.email + "\n";
+  frf += "Phone Number: " + template.phone + "\n";
+  if (template.address) frf += "Address: " + template.address + "\n";
+  frf += "Job Title: " + template.jobTitle + "\n\n";
+  frf += "Hiring Manager: " + template.hiringManager + "\n\n";
+  frf += "Requested by: " + requestedBy + "\n\n";
+  frf += "Maconomy Number: " + (maconomy || 'N/A') + "\n";
+  frf += "Silent Partner Number: " + silentPartner + "\n\n";
+  frf += "Account/project: " + account + "\n\n";
+  frf += "Location: " + template.location + "\n\n";
+  frf += "Proposed start date: " + startDate + "\n\n";
+  frf += "Estimated end date: " + endDate + "\n\n";
+  frf += "Rate: " + rate + "\n\n";
+  frf += "Estimated total cost: " + totalCost + "\n\n";
+  frf += "Rev Attached: " + revAttached + "\n\n";
+  frf += "Maconomy Secretary: " + template.macSecretary + "\n\n";
+  frf += "Equipment Needs: " + equipmentNeeds + "\n\n";
+  frf += "Extension or New Hire: " + extensionOrNew + "\n\n";
+  frf += "Reason for hire: " + reasonForHire + "\n\n";
+  frf += "Notes: " + notes + "\n";
+
+  return frf;
+}
+
+function generateEmailBody(frf) {
+  var requestedBy = val('requestedBy');
+  var body = "Hi Finance Team,\n\n";
+  body += "Please initiate this freelance request at your earliest convenience.\n\n";
+  body += frf;
+  if (requestedBy) {
+    body += "\n\nThank you,\n" + requestedBy;
+  }
+  return body;
+}
+
+function getFileName() {
+  var selectedName = val('freelancerSelect');
+  var t = new Date();
+  var month = t.getMonth() + 1;
+  var day = t.getDate();
+  var ds = t.getFullYear() + (month < 10 ? '0' : '') + month + (day < 10 ? '0' : '') + day;
+  var n = (selectedName || "freelancer").toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  return ds + "_" + n + "_FRF.txt";
+}
+
+function downloadFile(name, content) {
+  var blob = new Blob([content], {type: "text/plain"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function showStatus(msg) {
+  var status = document.getElementById('status');
+  if (status) {
+    status.textContent = msg;
+    setTimeout(function() { status.textContent = ''; }, 3000);
+  }
+}
+
+function togglePreview() {
+  var frf = buildFRF();
+  if (!frf) return;
+  var emailBody = generateEmailBody(frf);
+  var preview = document.getElementById('preview');
+  preview.textContent = emailBody;
+  if (preview.classList.contains('show')) {
+    preview.classList.remove('show');
+  } else {
+    preview.classList.add('show');
+  }
+}
+
+function copyToClipboard() {
+  var frf = buildFRF();
+  if (!frf) return;
+  var emailBody = generateEmailBody(frf);
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(emailBody).then(function() {
+      showStatus('✓ Copied to clipboard!');
+    }).catch(function(e) {
+      showStatus('⚠️ Could not copy');
+    });
+  } else {
+    var textArea = document.createElement("textarea");
+    textArea.value = emailBody;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showStatus('✓ Copied to clipboard!');
+    } catch (err) {
+      showStatus('⚠️ Could not copy');
+    }
+    document.body.removeChild(textArea);
+  }
+}
+
+function emailAndDownload() {
+  var frf = buildFRF();
+  if (!frf) return;
+  var emailBody = generateEmailBody(frf);
+  var fileName = getFileName();
+  downloadFile(fileName, emailBody);
+  
+  var selectedName = val('freelancerSelect');
+  var subject = "Freelance Request - " + selectedName;
+  window.location.href = "mailto:" + TO_EMAIL + "?cc=" + encodeURIComponent(CC_EMAILS) + "&subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(emailBody);
+  showStatus('✓ Email opened & file downloaded!');
+}
+
+function resetForm() {
+  document.getElementById('freelancerSelect').value = '';
+  document.getElementById('requestedBy').value = '';
+  document.getElementById('maconomy').value = '';
+  document.getElementById('silentPartner').value = '';
+  document.getElementById('account').value = '';
+  document.getElementById('startDate').value = '';
+  document.getElementById('endDate').value = '';
+  document.getElementById('rate').value = '';
+  document.getElementById('totalCost').value = '';
+  document.getElementById('revAttached').value = '';
+  document.getElementById('equipmentNeeds').value = '';
+  document.getElementById('extensionOrNew').value = '';
+  document.getElementById('reasonForHire').value = '';
+  document.getElementById('notes').value = '';
+  var preview = document.getElementById('preview');
+  if (preview.classList.contains('show')) {
+    preview.classList.remove('show');
+  }
+}
+</script>
+
+</body></html>
