@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WPP Production – Brand Colors</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --text:#e6e9ef; --muted:#aab2c0; --border:#2a3040; --focus:#3b82f6; --toast:#111827ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:960px;margin:28px auto;padding:0 16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+  h1{margin:0 0 6px;font-size:20px}
+  p.sub{margin:0 0 14px;color:var(--muted);font-size:14px}
+  section{margin-top:16px}
+  h2{font-size:13px;color:var(--muted);font-weight:600;margin:14px 0 8px;letter-spacing:.02em;text-transform:uppercase}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+  .chip{
+    display:flex;flex-direction:column;gap:6px;justify-content:space-between;
+    border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;background:#0b0d12;
+  }
+  .swatch{height:74px}
+  .meta{padding:10px 12px}
+  .name{font-size:14px}
+  .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}
+  .hint{font-size:11px;color:var(--muted)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .pill{font-size:11px;color:var(--muted);border:1px dashed var(--border);padding:4px 6px;border-radius:999px}
+  .footer{margin-top:14px;text-align:center;color:var(--muted);font-size:12px}
+  .toast{
+    position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
+    background:var(--toast);color:#fff;padding:10px 14px;border-radius:10px;border:1px solid #334155;
+    box-shadow:0 6px 20px #00000055;opacity:0;pointer-events:none;transition:opacity .15s ease;
+    font-size:13px
+  }
+  .toast.show{opacity:1}
+  .search{
+    display:flex;gap:8px;align-items:center;background:#0b0d12;border:1px solid var(--border);
+    padding:8px 10px;border-radius:10px;margin:6px 0 10px
+  }
+  .search input{flex:1;background:transparent;border:0;outline:none;color:var(--text);font-size:14px}
+  .cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .catbtn{border:1px solid var(--border);background:#1f2430;color:var(--text);font-size:12px;border-radius:999px;padding:6px 10px;cursor:pointer}
+  .catbtn.active{background:var(--focus);border-color:var(--focus)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>WPP Production — Brand Colors</h1>
+    <p class="sub">Click any chip to copy the <strong>HEX</strong> to clipboard. Use the search or category filters to narrow down.</p>
+
+    <!-- Filters -->
+    <div class="cats" id="catBar"></div>
+    <div class="search">
+      <input id="q" type="text" placeholder="Search name, hex, or category (e.g., ‘navy’, ‘#00005d’, ‘secondary’)…">
+    </div>
+
+    <!-- Sections render here -->
+    <div id="sections"></div>
+
+    <p class="footer">Single-file, offline. No tracking, no dependencies. Built for quick brand-reference tasks.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+/* ====== EDIT YOUR COLORS HERE ======
+  Tip: replace hex values with the official ones when you have the final list.
+  You can add as many colors as you want; categories render automatically.
+*/
+const COLORS = [
+  // Primary
+  { name: "WPP Navy",        hex: "#000050", category: "Primary" },
+  { name: "WPP Grey",        hex: "#F3F3F7", category: "Primary" },
+  { name: "White",           hex: "#FFFFFF", category: "Primary" },
+
+  // Secondary
+  { name: "WPP Production Magenta",  hex: "#FF00FF", category: "Secondary" },
+  { name: "WPP Production Pink",     hex: "#FF0083", category: "Secondary" },
+  { name: "WPP Orange",              hex: "#FF5C00", category: "Secondary" },
+  { name: "WPP Yellow",              hex: "#FFF52C", category: "Secondary" },
+
+  // Tertiary (type, data viz, UI only)
+  { name: "WPP Production Cobalt",    hex: "#2D73AE", category: "Tertiary" },
+  { name: "WPP Production Turquoise", hex: "#3ad0b3", category: "Tertiary" },
+  { name: "WPP Production Chartreuse",hex: "#d4e240", category: "Tertiary" },
+];
+
+// Optional: lock down allowed categories display order
+const CATEGORY_ORDER = ["Primary", "Secondary", "Tertiary"];
+
+/* ====== RENDER LOGIC ====== */
+const sectionsEl = document.getElementById('sections');
+const toast = document.getElementById('toast');
+const q = document.getElementById('q');
+const catBar = document.getElementById('catBar');
+
+function uniq(arr){ return [...new Set(arr)]; }
+function byCategory(data){
+  const cats = CATEGORY_ORDER.length ? CATEGORY_ORDER : uniq(data.map(d=>d.category));
+  return cats.map(c => ({ category:c, items:data.filter(d=>d.category===c) })).filter(s=>s.items.length);
+}
+function colorTextOn(bgHex){
+  // Simple contrast chooser: returns #000 or #fff for legibility on the swatch
+  const hex = bgHex.replace('#','');
+  const r = parseInt(hex.substring(0,2),16);
+  const g = parseInt(hex.substring(2,4),16);
+  const b = parseInt(hex.substring(4,6),16);
+  // YIQ contrast
+  const yiq = (r*299 + g*587 + b*114)/1000;
+  return yiq >= 140 ? "#111418" : "#ffffff";
+}
+function chip(color){
+  const el = document.createElement('div');
+  el.className = 'chip';
+  const sw = document.createElement('div');
+  sw.className = 'swatch';
+  sw.style.background = color.hex;
+  sw.style.color = colorTextOn(color.hex);
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML = `
+    <div class="name">${color.name}</div>
+    <div class="code">${color.hex.toUpperCase()}</div>
+    <div class="bar">
+      <span class="pill">${color.category}</span>
+      <span class="hint">Click to copy</span>
+    </div>
+  `;
+
+  el.appendChild(sw);
+  el.appendChild(meta);
+  el.addEventListener('click', () => copyHex(color.hex.toUpperCase()));
+  return el;
+}
+function sectionBlock(section){
+  const box = document.createElement('section');
+  const h = document.createElement('h2');
+  h.textContent = section.category;
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  section.items.forEach(c => grid.appendChild(chip(c)));
+  box.appendChild(h); box.appendChild(grid);
+  return box;
+}
+function render(data){
+  sectionsEl.innerHTML = '';
+  byCategory(data).forEach(sec => sectionsEl.appendChild(sectionBlock(sec)));
+}
+function toastMsg(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toast.classList.remove('show'), 1100);
+}
+function copyHex(hex){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(hex).then(()=> toastMsg(`Copied ${hex}`)).catch(()=> alert(hex));
+  } else {
+    // Fallback
+    alert(hex);
+  }
+}
+function filter(){
+  const term = q.value.trim().toLowerCase();
+  const activeCats = [...document.querySelectorAll('.catbtn.active')].map(b => b.dataset.cat);
+  const catFilterOn = activeCats.length > 0;
+  const filtered = COLORS.filter(c => {
+    const matchesTerm = !term || c.name.toLowerCase().includes(term) || c.hex.toLowerCase().includes(term) || c.category.toLowerCase().includes(term);
+    const matchesCat = !catFilterOn || activeCats.includes(c.category);
+    return matchesTerm && matchesCat;
+  });
+  render(filtered);
+}
+function buildCatBar(){
+  const cats = CATEGORY_ORDER.length ? CATEGORY_ORDER : uniq(COLORS.map(c=>c.category));
+  catBar.innerHTML = '';
+  cats.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'catbtn';
+    b.textContent = cat;
+    b.dataset.cat = cat;
+    b.addEventListener('click', ()=>{
+      b.classList.toggle('active');
+      filter();
+    });
+    catBar.appendChild(b);
+  });
+}
+
+buildCatBar();
+render(COLORS);
+q.addEventListener('input', filter);
+</script>
+</body>
+</html>
